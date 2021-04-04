@@ -9,20 +9,20 @@ import torch
 import torch.optim as optim
 
 train_data_loader, dev_data_loader = load_MVSA_data_iterator('datasets/MVSA_single',
-                                      BertTokenizer.from_pretrained("bert-base-uncased"),
-                                      torchvision.transforms.Compose([torchvision.transforms.Resize(256),
-                                                                      torchvision.transforms.RandomCrop(224),
-                                                                      torchvision.transforms.RandomHorizontalFlip(),
-                                                                      torchvision.transforms.ToTensor(),
-                                                                      torchvision.transforms.Normalize(
-                                                                          [0.485, 0.456, 0.406],
-                                                                          [0.229, 0.224, 0.225])
-                                                                      ]),
-                                      4,
-                                      "cpu",
-                                      True,
-                                      True,
-                                      512)
+                                                             BertTokenizer.from_pretrained("bert-base-uncased"),
+                                                             torchvision.transforms.Compose(
+                                                                 [torchvision.transforms.Resize(256),
+                                                                  torchvision.transforms.RandomCrop(224),
+                                                                  torchvision.transforms.RandomHorizontalFlip(),
+                                                                  torchvision.transforms.ToTensor(),
+                                                                  torchvision.transforms.Normalize(
+                                                                      [0.485, 0.456, 0.406],
+                                                                      [0.229, 0.224, 0.225])
+                                                                  ]),
+                                                             4,
+                                                             "cpu",
+                                                             True,
+                                                             512)
 
 image_encoder = CNN_Image_Encoder()
 image_decoder = CNN_Image_Decoder()
@@ -52,5 +52,5 @@ for epoch in range(10):
         pred = torch.argmax(image_output, dim=-1)
         gold = batch['image_label'].squeeze(1)
         total += len(image_input)
-        correct += (pred==gold).sum()
-    print("accuracy {}".format(correct/total))
+        correct += (pred == gold).sum()
+    print("accuracy {}".format(correct / total))

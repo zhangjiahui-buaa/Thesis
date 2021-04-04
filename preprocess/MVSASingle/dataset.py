@@ -135,7 +135,6 @@ def load_MVSA_data_iterator(path: str,
                             batch_size: int,
                             device: torch.device,
                             bucket: bool,
-                            shuffle: bool,
                             max_encode_length: int,
                             ):
     all_examples = _MVSA_Dataset(path).examples
@@ -155,7 +154,7 @@ def load_MVSA_data_iterator(path: str,
             train_dataset,
             batch_sampler=BucketBatchSampler(SequentialSampler(list(range(len(train_dataset)))), batch_size=batch_size,
                                              drop_last=False),
-            collate_fn=lambda x: tensor_collate_fn(x, shuffle))
+            collate_fn=lambda x: tensor_collate_fn(x, True))
 
         return train_data_loader, dev_data_loader
 
@@ -164,26 +163,24 @@ def load_MVSA_data_iterator(path: str,
         train_data_loader = DataLoader(
             train_dataset,
             batch_size=batch_size,
-            shuffle=shuffle,
-            collate_fn=lambda x: tensor_collate_fn(x, shuffle))
+            shuffle=True,
+            collate_fn=lambda x: tensor_collate_fn(x, True))
         return train_data_loader, dev_data_loader
 
 
 if __name__ == '__main__':
-
     train_data_loader, dev_data_loader = load_MVSA_data_iterator('datasets/MVSA_single',
-                                          BertTokenizer.from_pretrained("bert-base-uncased"),
-                                          torchvision.transforms.Compose([torchvision.transforms.Resize(256),
-                                                                          torchvision.transforms.RandomCrop(224),
-                                                                          torchvision.transforms.RandomHorizontalFlip(),
-                                                                          torchvision.transforms.ToTensor(),
-                                                                          torchvision.transforms.Normalize(
-                                                                              [0.485, 0.456, 0.406],
-                                                                              [0.229, 0.224, 0.225])
-                                                                          ]),
-                                          4,
-                                          "cpu",
-                                          True,
-                                          True,
-                                          512)
-
+                                                                 BertTokenizer.from_pretrained("bert-base-uncased"),
+                                                                 torchvision.transforms.Compose(
+                                                                     [torchvision.transforms.Resize(256),
+                                                                      torchvision.transforms.RandomCrop(224),
+                                                                      torchvision.transforms.RandomHorizontalFlip(),
+                                                                      torchvision.transforms.ToTensor(),
+                                                                      torchvision.transforms.Normalize(
+                                                                          [0.485, 0.456, 0.406],
+                                                                          [0.229, 0.224, 0.225])
+                                                                      ]),
+                                                                 4,
+                                                                 "cpu",
+                                                                 True,
+                                                                 512)
