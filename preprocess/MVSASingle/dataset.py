@@ -10,6 +10,7 @@ from transformers import BertTokenizer
 from tqdm import tqdm
 from logging import info, warning
 import torchvision
+import math
 
 
 class SortedSampler(Sampler):
@@ -128,7 +129,6 @@ def tensor_collate_fn(inputs: List[Dict], is_training: bool) -> Dict:
     collated['is_training'] = is_training
     return collated
 
-
 def load_MVSA_data_iterator(path: str,
                             tokenizer: BertTokenizer,
                             transform: torchvision.transforms,
@@ -138,8 +138,8 @@ def load_MVSA_data_iterator(path: str,
                             max_encode_length: int,
                             ):
     all_examples = _MVSA_Dataset(path).examples
-    train_examples = all_examples[:-500]
-    dev_examples = all_examples[-500:]
+    train_examples = all_examples[400:]
+    dev_examples = all_examples[:400]
 
     dev_dataset = MVSA_Dataset(dev_examples, tokenizer, transform, device, max_encode_length, False)
     dev_data_loader = DataLoader(
@@ -173,8 +173,7 @@ if __name__ == '__main__':
                                                                  BertTokenizer.from_pretrained("bert-base-uncased"),
                                                                  torchvision.transforms.Compose(
                                                                      [torchvision.transforms.Resize(256),
-                                                                      torchvision.transforms.RandomCrop(224),
-                                                                      torchvision.transforms.RandomHorizontalFlip(),
+                                                                      torchvision.transforms.CenterCrop(224),
                                                                       torchvision.transforms.ToTensor(),
                                                                       torchvision.transforms.Normalize(
                                                                           [0.485, 0.456, 0.406],
