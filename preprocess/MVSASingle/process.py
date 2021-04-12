@@ -69,7 +69,7 @@ class _MVSA_Dataset:
             elif example.text_label == Negative:
                 statistic['text_negative'] += 1
             else:
-                statistic['text_neutural'] += 1
+                statistic['text_neutral'] += 1
         return statistic
 
     def load_raw_all_datas(self, data_dir: str) -> None:
