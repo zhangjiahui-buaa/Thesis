@@ -2,22 +2,20 @@ import numpy as np
 import os
 from PIL import Image
 import PIL
-import cv2
 from preprocess.Hateful.utils import *
-import re
 from typing import List, DefaultDict, Dict
-import json
 import jsonlines
+from tqdm import tqdm
+
+
 class Hateful_Example:
     def __init__(self, ex_id: int,
                  text: str,
-                 image: PIL.Image.Image,
                  image_np: np.ndarray,
-                 label = None):
+                 label=None):
         self.id = ex_id
         self.text = text
         self.tokens = self.process_text(self.text)
-        self.image = image
         self.image_np = image_np
         self.label = label
 
@@ -61,20 +59,20 @@ class _Hateful_Dataset:
             label_file = jsonlines.open("datasets/Hateful/dev_seen.jsonl")
         else:
             label_file = jsonlines.open("datasets/Hateful/test_seen.jsonl")
-        for label in label_file:
+        for label in tqdm(label_file):
             _id = label["id"]
             image = Image.open(os.path.join(self.data_dir, label["img"]))
             image_np = np.array(image)
             if "label" in label:
-                example = Hateful_Example(_id, label["text"], image, image_np, label["label"])
+                example = Hateful_Example(_id, label["text"], image_np, label["label"])
             else:
-                example = Hateful_Example(_id, label["text"], image, image_np, None)
+                example = Hateful_Example(_id, label["text"], image_np, None)
             self.examples[split_type + "_examples"].append(example)
 
     def load_raw_all_datas(self) -> None:
-        #self.load_one_split("train")
+        self.load_one_split("train")
         self.load_one_split("dev")
-        #self.load_one_split("test")
+        self.load_one_split("test")
         return
 
 

@@ -5,12 +5,15 @@ from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data.dataloader import DataLoader
 from typing import List, Dict, Tuple
 from preprocess.MVSASingle.process import _MVSA_Dataset, MVSA_Example
+from preprocess.Hateful.process import _Hateful_Dataset, Hateful_Example
 from torch.utils.data.sampler import Sampler, SequentialSampler, BatchSampler, SubsetRandomSampler
 from transformers import BertTokenizer
 from tqdm import tqdm
 from logging import info, warning
 import torchvision
 import math
+from PIL import Image
+import copy
 
 
 class SortedSampler(Sampler):
@@ -67,7 +70,7 @@ class BucketBatchSampler(BatchSampler):
 class MVSA_Dataset(Dataset):
     def __init__(self, examples: List[MVSA_Example], tokenizer: BertTokenizer, transforms, device: torch.device,
                  max_encode_length: int, sort_by_length: bool) -> None:
-        super().__init__()
+        super(MVSA_Dataset, self).__init__()
         self.tokenizer = tokenizer
         self.device = device
         self.transforms = transforms
@@ -75,7 +78,7 @@ class MVSA_Dataset(Dataset):
         self.examples = self.encode_examples(examples, sort_by_length)
 
     def __getitem__(self, index: int) -> Dict:
-        result = self.examples[index]
+        result = copy.deepcopy(self.examples[index])
         result['input_image'] = self.transforms(result['original_image']).to(self.device)
         return result
 
@@ -115,6 +118,32 @@ class MVSA_Dataset(Dataset):
         }
 
 
+class Hate_Dataset(MVSA_Dataset):
+    def __init__(self, examples: List[Hateful_Example], tokenizer: BertTokenizer, transforms, device: torch.device,
+                 max_encode_length: int, sort_by_length: bool) -> None:
+        super(Hate_Dataset, self).__init__(examples, tokenizer, transforms, device,
+                                           max_encode_length, sort_by_length)
+
+    def __getitem__(self, index):
+        result = copy.deepcopy(self.examples[index])
+        Image_PIL = Image.fromarray(self.examples[index]['original_image_np'])
+        result['input_image'] = self.transforms(Image_PIL).to(self.device)
+        return result
+
+    def encode_example(self, example: Hateful_Example) -> Dict:
+        original_image_np, tokens = example.image_np, example.tokens
+
+        input_tokens = [self.tokenizer.cls_token] + tokens + [self.tokenizer.sep_token]
+        input_tokens_ids = self.tokenizer.convert_tokens_to_ids(input_tokens)
+        return {
+            'input_token_ids': torch.tensor(input_tokens_ids, dtype=torch.long, device=self.device),
+            'input_tokens': input_tokens,
+            'original_image_np': original_image_np,
+            'input_image': None,
+            'combined_label': torch.tensor([example.label], dtype=torch.long, device=self.device),
+        }
+
+
 def tensor_collate_fn(inputs: List[Dict], is_training: bool) -> Dict:
     assert len(inputs) > 0
     collated = {}
@@ -129,6 +158,7 @@ def tensor_collate_fn(inputs: List[Dict], is_training: bool) -> Dict:
     collated['is_training'] = is_training
     return collated
 
+
 def load_MVSA_data_iterator(path: str,
                             tokenizer: BertTokenizer,
                             transform: torchvision.transforms,
@@ -141,6 +171,7 @@ def load_MVSA_data_iterator(path: str,
     train_examples = all_examples[400:]
     dev_examples = all_examples[:400]
 
+    del all_examples  # save memory cost
     dev_dataset = MVSA_Dataset(dev_examples, tokenizer, transform, device, max_encode_length, False)
     dev_data_loader = DataLoader(
         dev_dataset,
@@ -168,8 +199,48 @@ def load_MVSA_data_iterator(path: str,
         return train_data_loader, dev_data_loader
 
 
+def load_Hate_data_iterator(path: str,
+                            tokenizer: BertTokenizer,
+                            transform: torchvision.transforms,
+                            batch_size: int,
+                            device: torch.device,
+                            bucket: bool,
+                            max_encode_length: int,
+                            ):
+    all_examples = _Hateful_Dataset(path).examples
+    train_examples, dev_examples = all_examples['train_examples'], \
+                                   all_examples['dev_examples']
+
+    del all_examples  # save memory cost
+    dev_dataset = Hate_Dataset(dev_examples, tokenizer, transform, device, max_encode_length, False)
+    dev_data_loader = DataLoader(
+        dev_dataset,
+        batch_size=batch_size,
+        shuffle=False,
+        collate_fn=lambda x: tensor_collate_fn(x, False))
+    if bucket:
+        train_dataset = Hate_Dataset(train_examples, tokenizer, transform, device, max_encode_length, True)
+        train_data_loader = DataLoader(
+            train_dataset,
+            batch_sampler=BucketBatchSampler(SequentialSampler(list(range(len(train_dataset)))), batch_size=batch_size,
+                                             drop_last=False),
+            collate_fn=lambda x: tensor_collate_fn(x, True))
+
+        return train_data_loader, dev_data_loader
+
+    else:
+        train_dataset = Hate_Dataset(train_examples, tokenizer, transform, device, max_encode_length, False)
+        train_data_loader = DataLoader(
+            train_dataset,
+            batch_size=batch_size,
+            shuffle=True,
+            collate_fn=lambda x: tensor_collate_fn(x, True))
+        return train_data_loader, dev_data_loader
+
+
 if __name__ == '__main__':
-    train_data_loader, dev_data_loader = load_MVSA_data_iterator('datasets/MVSA_single',
+    # 5GB memory cost on MVSA
+    MVSA_train_data_loader, MVSA_dev_data_loader = load_MVSA_data_iterator('datasets/MVSA_single',
                                                                  BertTokenizer.from_pretrained("bert-base-uncased"),
                                                                  torchvision.transforms.Compose(
                                                                      [torchvision.transforms.Resize(256),
@@ -183,3 +254,19 @@ if __name__ == '__main__':
                                                                  "cpu",
                                                                  True,
                                                                  512)
+    # 8GB memory cost on Hate
+    '''Hate_train_data_loader, Hate_dev_data_loader = load_Hate_data_iterator('datasets/Hateful',
+                                                                           BertTokenizer.from_pretrained(
+                                                                               "bert-base-uncased"),
+                                                                           torchvision.transforms.Compose(
+                                                                               [torchvision.transforms.Resize(256),
+                                                                                torchvision.transforms.CenterCrop(224),
+                                                                                torchvision.transforms.ToTensor(),
+                                                                                torchvision.transforms.Normalize(
+                                                                                    [0.485, 0.456, 0.406],
+                                                                                    [0.229, 0.224, 0.225])
+                                                                                ]),
+                                                                           4,
+                                                                           "cpu",
+                                                                           True,
+                                                                           512)'''

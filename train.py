@@ -1,9 +1,5 @@
-from preprocess.MVSASingle.dataset import load_MVSA_data_iterator
+from preprocess.dataset import load_MVSA_data_iterator
 from transformers import BertTokenizer
-import torchvision
-from tqdm import tqdm
-from model.encoder import *
-from model.decoder import *
 from model.model import *
 import torch.nn as nn
 import torch
@@ -145,6 +141,8 @@ def main():
 
     logger = get_logger(args)
     logger.info("Begin Logging")
+    for k in list(vars(args).keys()):
+        logger.info('%s: %s' % (k, vars(args)[k]))
 
     logger.info("Loading training data and test data")
     train_data_loader, dev_data_loader = get_train_and_dev_loader(args=args)
