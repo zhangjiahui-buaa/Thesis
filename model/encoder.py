@@ -142,6 +142,12 @@ def choose_image_encoder(args):
         return Transformer_Image_Encoder()
     elif args.image_enc == "vit":
         return ViT_Image_Encoder()
+    elif args.image_enc == "swint":
+        return SwinT_Image_Encoder()
+    elif args.image_enc == "tnt":
+        return TNT_Image_Encoder()
+    elif args.image_enc == "pit":
+        return PiT_Image_Encoder()
     else:
         raise ValueError("unknown image encoder")
 

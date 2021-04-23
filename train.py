@@ -148,8 +148,8 @@ def get_model(args, logger: logging.Logger) -> nn.Module:
     return model
 
 
-def save_model(model: nn.Module, accuracy: float, logger: logging.Logger, args):
-    saved_path = os.path.join(args.save_dir, str(accuracy), ".pt")
+def save_model(model: nn.Module, accuracy: torch.Tensor, logger: logging.Logger, args):
+    saved_path = os.path.join(args.save_dir, str(accuracy.item()) + ".pt")
     logger.info("Saving model at {}".format(saved_path))
     torch.save(model.state_dict(), saved_path)
     logger.info("Done!")
@@ -182,15 +182,15 @@ def main():
         logger.info('%s: %s' % (k, vars(args)[k]))
 
     logger.info("Loading training data and test data")
-    train_data_loader, dev_data_loader, test_data_loader = get_train_and_dev_loader(args=args)
+    data_loaders = get_train_and_dev_loader(args=args)
 
     logger.info("Loading model")
     model = get_model(args=args, logger=logger)
 
     optimizer = optim.Adam(model.parameters(), 0.001)
-    train(model, train_data_loader, dev_data_loader, optimizer, args, logger)
+    train(model, data_loaders[0], data_loaders[1], optimizer, args, logger)
 
-    # infer(model, test_data_loader, args, logger)
+    # infer(model, data_loader[2], args, logger)
 
 
 if __name__ == '__main__':

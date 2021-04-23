@@ -1,0 +1,9 @@
+torch~=1.8.1
+timm~=0.4.8
+torchvision~=0.4.2
+transformers~=3.0.2
+numpy~=1.18.5
+pillow~=7.2.0
+jsonlines~=2.0.0
+tqdm~=4.48.0
+opencv-python~=4.5.1.48

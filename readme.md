@@ -1,5 +1,9 @@
 ## Thesis
 
+### prerequisite
+pip install requirements
+mkdir output
+
 ### Command
 ~~~shell script
     python train.py --task {image,text,multi}
