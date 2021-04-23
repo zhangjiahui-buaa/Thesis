@@ -140,7 +140,8 @@ class Hate_Dataset(MVSA_Dataset):
             'input_tokens': input_tokens,
             'original_image_np': original_image_np,
             'input_image': None,
-            'combined_label': torch.tensor([example.label], dtype=torch.long, device=self.device),
+            'combined_label': torch.tensor([example.label], dtype=torch.long,
+                                           device=self.device) if example.label is not None else None
         }
 
 

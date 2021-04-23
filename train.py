@@ -177,12 +177,12 @@ def main():
         os.mkdir(args.save_dir)
 
     logger = get_logger(args)
+
+    data_loaders = get_train_and_dev_loader(args=args)
+
     logger.info("Begin Logging")
     for k in list(vars(args).keys()):
         logger.info('%s: %s' % (k, vars(args)[k]))
-
-    logger.info("Loading training data and test data")
-    data_loaders = get_train_and_dev_loader(args=args)
 
     logger.info("Loading model")
     model = get_model(args=args, logger=logger)

@@ -1,5 +1,4 @@
 torch~=1.8.1
-timm~=0.4.8
 torchvision~=0.4.2
 transformers~=3.0.2
 numpy~=1.18.5
