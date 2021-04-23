@@ -36,4 +36,4 @@ class Image_and_Text_Decoder(nn.Module):  # TODO: weighted sum feature fusion
             assert para.requires_grad is True
 
     def forward(self, image_tensor, text_tensor):
-        return self.linear(torch.cat([image_tensor, text_tensor]))
+        return self.linear(torch.cat([image_tensor, text_tensor], dim=-1))

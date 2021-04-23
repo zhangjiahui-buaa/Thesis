@@ -151,8 +151,10 @@ def tensor_collate_fn(inputs: List[Dict], is_training: bool) -> Dict:
         values = [x[key] for x in inputs]
         if key == 'input_token_ids':
             collated[key] = pad_sequence(values, batch_first=True, padding_value=0)
-        elif key in ['input_image', 'text_label', 'image_label', 'combined_label']:
+        elif key == 'input_image':
             collated[key] = torch.stack(values)
+        elif key in ['text_label', 'image_label', 'combined_label']:
+            collated[key] = torch.stack(values).squeeze(-1)
         else:
             collated[key] = values
     collated['is_training'] = is_training
@@ -208,8 +210,9 @@ def load_Hate_data_iterator(path: str,
                             max_encode_length: int,
                             ):
     all_examples = _Hateful_Dataset(path).examples
-    train_examples, dev_examples = all_examples['train_examples'], \
-                                   all_examples['dev_examples']
+    train_examples, dev_examples, test_examples = all_examples['train_examples'], \
+                                                  all_examples['dev_examples'], \
+                                                  all_examples['test_examples']
 
     del all_examples  # save memory cost
     dev_dataset = Hate_Dataset(dev_examples, tokenizer, transform, device, max_encode_length, False)
@@ -217,7 +220,15 @@ def load_Hate_data_iterator(path: str,
         dev_dataset,
         batch_size=batch_size,
         shuffle=False,
-        collate_fn=lambda x: tensor_collate_fn(x, False))
+        collate_fn=lambda x: tensor_collate_fn(x, False)
+    )
+    test_dataset = Hate_Dataset(test_examples, tokenizer, transform, device, max_encode_length, False)
+    test_data_loader = DataLoader(
+        test_dataset,
+        batch_size=batch_size,
+        shuffle=False,
+        collate_fn=lambda x: tensor_collate_fn(x, False)
+    )
     if bucket:
         train_dataset = Hate_Dataset(train_examples, tokenizer, transform, device, max_encode_length, True)
         train_data_loader = DataLoader(
@@ -235,25 +246,26 @@ def load_Hate_data_iterator(path: str,
             batch_size=batch_size,
             shuffle=True,
             collate_fn=lambda x: tensor_collate_fn(x, True))
-        return train_data_loader, dev_data_loader
+        return train_data_loader, dev_data_loader, test_data_loader
 
 
 if __name__ == '__main__':
     # 5GB memory cost on MVSA
     MVSA_train_data_loader, MVSA_dev_data_loader = load_MVSA_data_iterator('datasets/MVSA_single',
-                                                                 BertTokenizer.from_pretrained("bert-base-uncased"),
-                                                                 torchvision.transforms.Compose(
-                                                                     [torchvision.transforms.Resize(256),
-                                                                      torchvision.transforms.CenterCrop(224),
-                                                                      torchvision.transforms.ToTensor(),
-                                                                      torchvision.transforms.Normalize(
-                                                                          [0.485, 0.456, 0.406],
-                                                                          [0.229, 0.224, 0.225])
-                                                                      ]),
-                                                                 4,
-                                                                 "cpu",
-                                                                 True,
-                                                                 512)
+                                                                           BertTokenizer.from_pretrained(
+                                                                               "bert-base-uncased"),
+                                                                           torchvision.transforms.Compose(
+                                                                               [torchvision.transforms.Resize(256),
+                                                                                torchvision.transforms.CenterCrop(224),
+                                                                                torchvision.transforms.ToTensor(),
+                                                                                torchvision.transforms.Normalize(
+                                                                                    [0.485, 0.456, 0.406],
+                                                                                    [0.229, 0.224, 0.225])
+                                                                                ]),
+                                                                           4,
+                                                                           "cpu",
+                                                                           True,
+                                                                           512)
     # 8GB memory cost on Hate
     '''Hate_train_data_loader, Hate_dev_data_loader = load_Hate_data_iterator('datasets/Hateful',
                                                                            BertTokenizer.from_pretrained(

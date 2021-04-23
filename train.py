@@ -1,4 +1,4 @@
-from preprocess.dataset import load_MVSA_data_iterator
+from preprocess.dataset import load_MVSA_data_iterator, load_Hate_data_iterator
 from transformers import BertTokenizer
 from model.model import *
 import torch.nn as nn
@@ -17,10 +17,13 @@ def parse_args():
     parser.add_argument('-multi_type', '--multi_type', help='if multi, encode image and text separately or together?',
                         type=str, default="separate")
     parser.add_argument('-dataset', '--dataset', help='mvsa or hateful', type=str, default="mvsa")
-    parser.add_argument('-data_dir', '--data_dir', help='mvsa or hateful', type=str, default="datasets/MVSA_Single")
+    parser.add_argument('-label_num', '--label_num', help='number of label', type=int, default=3)
     parser.add_argument('-image_enc', '--image_enc', help='cnn, tranformer or vit', type=str, default="cnn")
+    parser.add_argument('-image_enc_pre_trained', '--image_enc_pre_trained', help='true or false', type=bool,
+                        default=True)
     parser.add_argument('-text_enc', '--text_enc', help='lstm or bert', type=str, default="bert")
     parser.add_argument('-mixed_enc', '--mixed_enc', help='mmbt or unit', type=str, default="mmbt")
+    parser.add_argument('-model_checkpoint', '--model_checkpoint', help='path to model', type=str, default=None)
     parser.add_argument('-bert_version', '--bert_version', help='bert version', type=str, default="bert-base-uncased")
     parser.add_argument('-device', '--device', help='cpu or gpu', type=str,
                         default="cuda" if torch.cuda.is_available() else "cpu")
@@ -36,6 +39,7 @@ def parse_args():
 
 def get_train_and_dev_loader(args):
     if args.dataset == "mvsa":
+        args.label_num = 3
         return load_MVSA_data_iterator('datasets/MVSA_Single',
                                        BertTokenizer.from_pretrained("bert-base-uncased"),
                                        torchvision.transforms.Compose(
@@ -51,48 +55,74 @@ def get_train_and_dev_loader(args):
                                        args.device,
                                        True,
                                        512)
+    elif args.dataset == "hateful":
+        args.label_num = 2
+        return load_Hate_data_iterator('datasets/Hateful',
+                                       BertTokenizer.from_pretrained(
+                                           "bert-base-uncased"),
+                                       torchvision.transforms.Compose(
+                                           [torchvision.transforms.Resize(256),
+                                            torchvision.transforms.CenterCrop(
+                                                224),
+                                            torchvision.transforms.ToTensor(),
+                                            torchvision.transforms.Normalize(
+                                                [0.485, 0.456, 0.406],
+                                                [0.229, 0.224, 0.225])
+                                            ]),
+                                       4,
+                                       "cpu",
+                                       True,
+                                       512)
     else:
         raise NotImplementedError("Dataset {} has not been implemented".format(args.dataset))
+
+
+def infer(model: nn.Module, test_loader, args, logger: logging.Logger):  # infer on test set
+    model.eval()
+    pass
 
 
 def evaluate(model: nn.Module, dev_loader, args, logger: logging.Logger):
     model.eval()
     total = 0
+    total_loss = 0
     correct = 0
     with torch.no_grad():
         for batch in dev_loader:
-            output = model(**batch)
-
-            loss, logits = output[:2]
-            label = batch["combined_label"]
-            pred = torch.argmax(logits, dim=-1)
+            loss, pred = model.compute_loss(**batch)
+            if args.task == 'multi':
+                label = batch["combined_label"]
+            elif args.task == 'image':
+                label = batch['image_label']
+            else:
+                label = batch['text_label']
             total += len(label)
+            total_loss += loss * len(label)
             correct += (pred == label).sum()
 
-    logger.info("Evaluate Result--Dev set Loss:{}, Dev set Accuract:{}".format(loss, correct / total))
+    logger.info("Evaluate Result--Dev set Loss:{}, Dev set Accuract:{}".format(total_loss / total, correct / total))
 
-    return correct / total
+    return correct / total, total_loss / total
 
 
 def train(model: nn.Module, train_loader, dev_loader, optimizer: optim.Optimizer, args, logger: logging.Logger) -> None:
     logger.info("**********Begin Training**********")
     best_accuracy = 0
-    for epoch in args.epoch:
+    for epoch in range(args.epoch):
         logger.info('Begin Epoch: {}'.format(epoch))
         # train model
         model.train()
         for step, batch in enumerate(train_loader):
             optimizer.zero_grad()
             assert isinstance(batch, dict)
-            output = model(**batch)
-            loss = output[0]
+            loss = model.compute_loss(**batch)[0]
             loss.backward()
             optimizer.step()
             if step % args.log_step == 0:
                 logger.info("Epoch:{}, Step:{}, Training Loss:{}".format(epoch, step, loss))
 
         # evaluate and save best model
-        accuracy = evaluate(model, dev_loader, args, logger)
+        accuracy, _ = evaluate(model, dev_loader, args, logger)
         if accuracy > best_accuracy:
             best_accuracy = accuracy
             save_model(model, best_accuracy, logger, args)
@@ -101,21 +131,28 @@ def train(model: nn.Module, train_loader, dev_loader, optimizer: optim.Optimizer
     logger.info("Best accuracy on dev set is {}".format(best_accuracy))
 
 
-def get_model(args) -> nn.Module:
+def get_model(args, logger: logging.Logger) -> nn.Module:
     if args.task == "text":
-        return Text_Model(args).to(args.device)
+        model = Text_Model(args).to(args.device)
     elif args.task == "image":
-        return Image_Model(args).to(args.device)
+        model = Image_Model(args).to(args.device)
     elif args.task == "multi":
-        return MultiModal_Model(args).to(args.device)
+        model = MultiModal_Model(args).to(args.device)
     else:
         raise NotImplementedError("Unknown task type, only support text, image, multi")
+    if args.model_checkpoint is not None:
+        model.load_state_dict(torch.load(args.model_checkpoint, map_location=args.device))
+        logger.info('Initialize {} from checkpoint {} over.'.format(model, args.model_checkpoint))
+    else:
+        logger.info('Initialize {} randomly.'.format(model))
+    return model
 
 
 def save_model(model: nn.Module, accuracy: float, logger: logging.Logger, args):
-    logger.info("Saving model....")
     saved_path = os.path.join(args.save_dir, str(accuracy), ".pt")
+    logger.info("Saving model at {}".format(saved_path))
     torch.save(model.state_dict(), saved_path)
+    logger.info("Done!")
 
 
 def get_logger(args):
@@ -145,13 +182,15 @@ def main():
         logger.info('%s: %s' % (k, vars(args)[k]))
 
     logger.info("Loading training data and test data")
-    train_data_loader, dev_data_loader = get_train_and_dev_loader(args=args)
+    train_data_loader, dev_data_loader, test_data_loader = get_train_and_dev_loader(args=args)
 
     logger.info("Loading model")
-    model = get_model(args=args)
+    model = get_model(args=args, logger=logger)
 
     optimizer = optim.Adam(model.parameters(), 0.001)
-    train(model, train_data_loader, optimizer, args, logger)
+    train(model, train_data_loader, dev_data_loader, optimizer, args, logger)
+
+    # infer(model, test_data_loader, args, logger)
 
 
 if __name__ == '__main__':

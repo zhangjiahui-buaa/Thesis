@@ -2,3 +2,6 @@ datasets/Hateful/img/*
 datasets/Hateful/*
 output/*
 preprocess/*/__pycache__/*
+preprocess/__pycache__/
+
+*.pyc

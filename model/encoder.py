@@ -25,8 +25,8 @@ class CNN_Image_Encoder(nn.Module):
     def __init__(self):
         super(CNN_Image_Encoder, self).__init__()
         self.cnn = timm.create_model('resnet50', pretrained=True, num_classes=0)
-        for para in self.cnn.parameter():
-            assert para.require_grad is True
+        for para in self.cnn.parameters():
+            assert para.requires_grad is True
 
     def forward(self, x):
         return self.cnn(x)  # torch.Size([bz, 2048])
@@ -36,8 +36,8 @@ class Transformer_Image_Encoder(nn.Module):
     def __init__(self):
         super(Transformer_Image_Encoder, self).__init__()
         self.encoder = timm.create_model('vit_base_patch16_224', pretrained=False, num_classes=3)
-        for para in self.encoder.parameter():
-            assert para.require_grad is True
+        for para in self.encoder.parameters():
+            assert para.requires_grad is True
 
     def forward(self, x):
         return self.encoder.forward_features(x)  # torch.Size([bz, 768])
@@ -47,11 +47,44 @@ class ViT_Image_Encoder(nn.Module):
     def __init__(self):
         super(ViT_Image_Encoder, self).__init__()
         self.encoder = timm.create_model('vit_base_patch16_224', pretrained=True, num_classes=3)
-        for para in self.encoder.parameter():
-            assert para.require_grad is True
+        for para in self.encoder.parameters():
+            assert para.requires_grad is True
 
     def forward(self, x):
         return self.encoder.forward_features(x)  # torch.Size([bz, 768])
+
+
+class SwinT_Image_Encoder(nn.Module):
+    def __init__(self):
+        super(SwinT_Image_Encoder, self).__init__()
+        self.encoder = timm.create_model('swin_base_patch4_window7_224', pretrained=True, num_classes=3)
+        for para in self.encoder.parameters():
+            assert para.requires_grad is True
+
+    def forward(self, x):
+        return self.encoder.forward_features(x)  # torch.Size([bz, 1024])
+
+
+class TNT_Image_Encoder(nn.Module):
+    def __init__(self):
+        super(TNT_Image_Encoder, self).__init__()
+        self.encoder = timm.create_model('tnt_s_patch16_224', pretrained=True, num_classes=3)
+        for para in self.encoder.parameters():
+            assert para.requires_grad is True
+
+    def forward(self, x):
+        return self.encoder.forward_features(x)  # torch.Size([bz, 384])
+
+
+class PiT_Image_Encoder(nn.Module):
+    def __init__(self):
+        super(PiT_Image_Encoder, self).__init__()
+        self.encoder = timm.create_model('pit_b_224', pretrained=True, num_classes=3)
+        for para in self.encoder.parameters():
+            assert para.requires_grad is True
+
+    def forward(self, x):
+        return self.encoder.forward_features(x).squeeze(1)  # torch.Size([bz, 1024])
 
 
 class MMBT_ImageEncoder(nn.Module):
@@ -90,13 +123,12 @@ class BERT_Text_Encoder(nn.Module):
     def __init__(self, bert_version: str = "bert-base-uncased"):
         super(BERT_Text_Encoder, self).__init__()
         self.bert = BertModel.from_pretrained(bert_version)
-        for para in self.encoder.parameter():
-            assert para.require_grad is True
+        for para in self.bert.parameters():
+            assert para.requires_grad is True
 
     def forward(self, **inputs):
         bert_outputs, _ = self.bert(
             inputs['input_token_ids'],
-            token_type_ids=inputs['input_token_types'].lt(0),
             attention_mask=inputs['input_token_ids'].ne(0))  ## bz x len_seq x hidden_size
 
         cls_outputs = bert_outputs[:, 0, :]  ## bz x hidden_size
@@ -104,25 +136,25 @@ class BERT_Text_Encoder(nn.Module):
 
 
 def choose_image_encoder(args):
-    if args.image_encoder == "cnn":
+    if args.image_enc == "cnn":
         return CNN_Image_Encoder()
-    elif args.image_encoder == "transformer":
+    elif args.image_enc == "transformer":
         return Transformer_Image_Encoder()
-    elif args.image_encoder == "vit":
+    elif args.image_enc == "vit":
         return ViT_Image_Encoder()
     else:
         raise ValueError("unknown image encoder")
 
 
 def choose_multi_encoder(args):
-    if args.mixed_encoder == "mmbt":
+    if args.mixed_enc == "mmbt":
         return MMBT(args.num_label)
     else:
         raise ValueError("unknown multimodal encoder")
 
 
 def choose_text_encoder(args):
-    if args.text_encoder == "bert":
+    if args.text_enc == "bert":
         return BERT_Text_Encoder()
     else:
         raise ValueError("unknown text encoder")
