@@ -25,6 +25,7 @@ def parse_args():
     parser.add_argument('-mixed_enc', '--mixed_enc', help='mmbt or unit', type=str, default="mmbt")
     parser.add_argument('-model_checkpoint', '--model_checkpoint', help='path to model', type=str, default=None)
     parser.add_argument('-bert_version', '--bert_version', help='bert version', type=str, default="bert-base-uncased")
+    parser.add_argument('-batch_size', '--batch_size', help='batch size', type=int, default="32")
     parser.add_argument('-device', '--device', help='cpu or gpu', type=str,
                         default="cuda" if torch.cuda.is_available() else "cpu")
     parser.add_argument('-enc_lr', '--enc_lr', help='learning rate of encoder', type=float, default=1e-3)
@@ -51,7 +52,7 @@ def get_train_and_dev_loader(args):
                                                 [0.485, 0.456, 0.406],
                                                 [0.229, 0.224, 0.225])
                                             ]),
-                                       32,
+                                       args.batch_size,
                                        args.device,
                                        True,
                                        512)
@@ -69,7 +70,7 @@ def get_train_and_dev_loader(args):
                                                 [0.485, 0.456, 0.406],
                                                 [0.229, 0.224, 0.225])
                                             ]),
-                                       4,
+                                       args.batch_size,
                                        args.device,
                                        True,
                                        512)
