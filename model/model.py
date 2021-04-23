@@ -15,7 +15,7 @@ class MultiModal_Model(nn.Module):
         self.mixed_encoder = None
         self.decoder = None
         if args.multi_type == "separate":
-            self.image_encoder = choose_image_encoder(args)
+            self.image_encoder, self.image_transform = choose_image_encoder(args)
             self.text_encoder = choose_text_encoder(args)
             self.decoder = Image_and_Text_Decoder(Image_Feature_Size[args.image_enc],
                                                   Text_Feature_Size[args.text_enc], args.label_num)
@@ -49,7 +49,7 @@ class MultiModal_Model(nn.Module):
 class Image_Model(nn.Module):
     def __init__(self, args):
         super(Image_Model, self).__init__()
-        self.encoder = choose_image_encoder(args)
+        self.encoder, self.image_transform = choose_image_encoder(args)
         self.decoder = Image_Decoder(Image_Feature_Size[self.args.image_enc], self.args.label_num)
 
     def forward(self, **inputs):
@@ -92,4 +92,3 @@ class Text_Model(nn.Module):
         logits = self.forward(**inputs)
         pred = torch.argmax(logits, dim=-1)
         return pred, logits
-

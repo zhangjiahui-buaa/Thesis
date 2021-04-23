@@ -13,6 +13,8 @@ from transformers import (
     get_linear_schedule_with_warmup,
     BertModel
 )
+from timm.data import resolve_data_config
+from timm.data.transforms_factory import create_transform
 import torchvision
 
 POOLING_BREAKDOWN = {1: (1, 1), 2: (2, 1), 3: (3, 1), 4: (2, 2), 5: (5, 1), 6: (3, 2), 7: (7, 1), 8: (4, 2), 9: (3, 3)}
@@ -25,6 +27,14 @@ class CNN_Image_Encoder(nn.Module):
     def __init__(self):
         super(CNN_Image_Encoder, self).__init__()
         self.cnn = timm.create_model('resnet50', pretrained=True, num_classes=0)
+        self.transform = torchvision.transforms.Compose(
+            [torchvision.transforms.Resize(256),
+             torchvision.transforms.CenterCrop(224),
+             torchvision.transforms.ToTensor(),
+             torchvision.transforms.Normalize(
+                 [0.485, 0.456, 0.406],
+                 [0.229, 0.224, 0.225])
+             ])
         for para in self.cnn.parameters():
             assert para.requires_grad is True
 
@@ -36,6 +46,8 @@ class Transformer_Image_Encoder(nn.Module):
     def __init__(self):
         super(Transformer_Image_Encoder, self).__init__()
         self.encoder = timm.create_model('vit_base_patch16_224', pretrained=False, num_classes=3)
+        self.config = resolve_data_config({},model=self.encoder)
+        self.transform = create_transform(**self.config)
         for para in self.encoder.parameters():
             assert para.requires_grad is True
 
@@ -47,6 +59,8 @@ class ViT_Image_Encoder(nn.Module):
     def __init__(self):
         super(ViT_Image_Encoder, self).__init__()
         self.encoder = timm.create_model('vit_base_patch16_224', pretrained=True, num_classes=3)
+        self.config = resolve_data_config({},model=self.encoder)
+        self.transform = create_transform(**self.config)
         for para in self.encoder.parameters():
             assert para.requires_grad is True
 
@@ -58,6 +72,8 @@ class SwinT_Image_Encoder(nn.Module):
     def __init__(self):
         super(SwinT_Image_Encoder, self).__init__()
         self.encoder = timm.create_model('swin_base_patch4_window7_224', pretrained=True, num_classes=3)
+        self.config = resolve_data_config({},model=self.encoder)
+        self.transform = create_transform(**self.config)
         for para in self.encoder.parameters():
             assert para.requires_grad is True
 
@@ -69,6 +85,8 @@ class TNT_Image_Encoder(nn.Module):
     def __init__(self):
         super(TNT_Image_Encoder, self).__init__()
         self.encoder = timm.create_model('tnt_s_patch16_224', pretrained=True, num_classes=3)
+        self.config = resolve_data_config({},model=self.encoder)
+        self.transform = create_transform(**self.config)
         for para in self.encoder.parameters():
             assert para.requires_grad is True
 
@@ -80,6 +98,8 @@ class PiT_Image_Encoder(nn.Module):
     def __init__(self):
         super(PiT_Image_Encoder, self).__init__()
         self.encoder = timm.create_model('pit_b_224', pretrained=True, num_classes=3)
+        self.config = resolve_data_config({},model=self.encoder)
+        self.transform = create_transform(**self.config)
         for para in self.encoder.parameters():
             assert para.requires_grad is True
 
@@ -94,6 +114,14 @@ class MMBT_ImageEncoder(nn.Module):
         modules = list(model.children())[:-2]
         self.model = nn.Sequential(*modules)
         self.pool = nn.AdaptiveAvgPool2d(POOLING_BREAKDOWN[1])  ## output_size = (1,1)
+        self.transform = torchvision.transforms.Compose(
+            [torchvision.transforms.Resize(256),
+             torchvision.transforms.CenterCrop(224),
+             torchvision.transforms.ToTensor(),
+             torchvision.transforms.Normalize(
+                 [0.485, 0.456, 0.406],
+                 [0.229, 0.224, 0.225])
+             ])
 
     def forward(self, x):
         # Bx3x224x224 -> Bx2048x7x7 -> Bx2048xN -> BxNx2048
@@ -137,26 +165,28 @@ class BERT_Text_Encoder(nn.Module):
 
 def choose_image_encoder(args):
     if args.image_enc == "cnn":
-        return CNN_Image_Encoder()
+        model = CNN_Image_Encoder()
     elif args.image_enc == "transformer":
-        return Transformer_Image_Encoder()
+        model = Transformer_Image_Encoder()
     elif args.image_enc == "vit":
-        return ViT_Image_Encoder()
+        model = ViT_Image_Encoder()
     elif args.image_enc == "swint":
-        return SwinT_Image_Encoder()
+        model = SwinT_Image_Encoder()
     elif args.image_enc == "tnt":
-        return TNT_Image_Encoder()
+        model = TNT_Image_Encoder()
     elif args.image_enc == "pit":
-        return PiT_Image_Encoder()
+        model = PiT_Image_Encoder()
     else:
         raise ValueError("unknown image encoder")
+    return model, model.transform
 
 
 def choose_multi_encoder(args):
     if args.mixed_enc == "mmbt":
-        return MMBT(args.num_label)
+        model =  MMBT(args.num_label)
     else:
         raise ValueError("unknown multimodal encoder")
+    return model, model.image_encoder.transform
 
 
 def choose_text_encoder(args):

@@ -38,20 +38,12 @@ def parse_args():
     return args
 
 
-def get_train_and_dev_loader(args):
+def get_train_and_dev_loader(args, transform):
     if args.dataset == "mvsa":
         args.label_num = 3
         return load_MVSA_data_iterator('datasets/MVSA_Single',
-                                       BertTokenizer.from_pretrained("bert-base-uncased"),
-                                       torchvision.transforms.Compose(
-                                           [torchvision.transforms.Resize(256),
-                                            torchvision.transforms.CenterCrop(224),
-                                            # torchvision.transforms.RandomHorizontalFlip(),
-                                            torchvision.transforms.ToTensor(),
-                                            torchvision.transforms.Normalize(
-                                                [0.485, 0.456, 0.406],
-                                                [0.229, 0.224, 0.225])
-                                            ]),
+                                       BertTokenizer.from_pretrained(args.bert_version),
+                                       transform,
                                        args.batch_size,
                                        args.device,
                                        True,
@@ -60,16 +52,8 @@ def get_train_and_dev_loader(args):
         args.label_num = 2
         return load_Hate_data_iterator('datasets/Hateful',
                                        BertTokenizer.from_pretrained(
-                                           "bert-base-uncased"),
-                                       torchvision.transforms.Compose(
-                                           [torchvision.transforms.Resize(256),
-                                            torchvision.transforms.CenterCrop(
-                                                224),
-                                            torchvision.transforms.ToTensor(),
-                                            torchvision.transforms.Normalize(
-                                                [0.485, 0.456, 0.406],
-                                                [0.229, 0.224, 0.225])
-                                            ]),
+                                           args.bert_version),
+                                       transform,
                                        args.batch_size,
                                        args.device,
                                        True,
@@ -132,13 +116,16 @@ def train(model: nn.Module, train_loader, dev_loader, optimizer: optim.Optimizer
     logger.info("Best accuracy on dev set is {}".format(best_accuracy))
 
 
-def get_model(args, logger: logging.Logger) -> nn.Module:
+def get_model_and_transform(args, logger: logging.Logger):
+    image_transform = None
     if args.task == "text":
         model = Text_Model(args).to(args.device)
     elif args.task == "image":
         model = Image_Model(args).to(args.device)
+        image_transform = model.image_transform
     elif args.task == "multi":
         model = MultiModal_Model(args).to(args.device)
+        image_transform = model.image_transform
     else:
         raise NotImplementedError("Unknown task type, only support text, image, multi")
     if args.model_checkpoint is not None:
@@ -146,7 +133,7 @@ def get_model(args, logger: logging.Logger) -> nn.Module:
         logger.info('Initialize {} from checkpoint {} over.'.format(model, args.model_checkpoint))
     else:
         logger.info('Initialize {} randomly.'.format(model))
-    return model
+    return model, image_transform
 
 
 def save_model(model: nn.Module, accuracy: torch.Tensor, logger: logging.Logger, args):
@@ -179,14 +166,15 @@ def main():
 
     logger = get_logger(args)
 
-    data_loaders = get_train_and_dev_loader(args=args)
-
     logger.info("Begin Logging")
     for k in list(vars(args).keys()):
         logger.info('%s: %s' % (k, vars(args)[k]))
 
     logger.info("Loading model")
-    model = get_model(args=args, logger=logger)
+    model, transform = get_model_and_transform(args=args, logger=logger)
+
+    logger.info("Loading data")
+    data_loaders = get_train_and_dev_loader(args=args, transform=transform)
 
     optimizer = optim.Adam(model.parameters(), 0.001)
     train(model, data_loaders[0], data_loaders[1], optimizer, args, logger)
