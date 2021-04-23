@@ -70,7 +70,7 @@ def get_train_and_dev_loader(args):
                                                 [0.229, 0.224, 0.225])
                                             ]),
                                        4,
-                                       "cpu",
+                                       args.device,
                                        True,
                                        512)
     else:
