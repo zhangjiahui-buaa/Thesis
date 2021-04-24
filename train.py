@@ -32,7 +32,7 @@ def parse_args():
     parser.add_argument('-dec_lr', '--dec_lr', help='learning rate of decoder', type=float, default=1e-3)
     parser.add_argument('-epoch', '--epoch', help='training epochs', type=int, default=10)
     parser.add_argument('-log', '--log', help='path to save logging info', type=str, default="output/logging.log")
-    parser.add_argument('-log_step', '--log_step', help='print logging info by step', type=int, default=10)
+    parser.add_argument('-log_step', '--log_step', help='print logging info by step', type=int, default=50)
     parser.add_argument('-save_dir', '--save_dir', help='save directory', type=str, default="output/dir")
     args = parser.parse_args()
     return args
@@ -152,7 +152,7 @@ def get_model_transform_and_optimizer(args, logger: logging.Logger):
 
 
 def save_model(model: nn.Module, accuracy: float, logger: logging.Logger, args):
-    saved_path = os.path.join(args.save_dir, str(accuracy) + ".pt")
+    saved_path = os.path.join(args.save_dir, "model.pt")
     logger.info("Saving model at {}".format(saved_path))
     torch.save(model.state_dict(), saved_path)
     logger.info("Done!")
