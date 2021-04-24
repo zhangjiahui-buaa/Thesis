@@ -1,16 +1,11 @@
-from torchvision import models
 import torch.nn as nn
 import torch
 import timm
 from transformers import (
-    WEIGHTS_NAME,
-    AdamW,
     AutoConfig,
     AutoModel,
-    AutoTokenizer,
     MMBTConfig,
     MMBTForClassification,
-    get_linear_schedule_with_warmup,
     BertModel
 )
 from timm.data import resolve_data_config
@@ -46,7 +41,7 @@ class Transformer_Image_Encoder(nn.Module):
     def __init__(self):
         super(Transformer_Image_Encoder, self).__init__()
         self.encoder = timm.create_model('vit_base_patch16_224', pretrained=False, num_classes=3)
-        self.config = resolve_data_config({},model=self.encoder)
+        self.config = resolve_data_config({}, model=self.encoder)
         self.transform = create_transform(**self.config)
         for para in self.encoder.parameters():
             assert para.requires_grad is True
@@ -59,7 +54,7 @@ class ViT_Image_Encoder(nn.Module):
     def __init__(self):
         super(ViT_Image_Encoder, self).__init__()
         self.encoder = timm.create_model('vit_base_patch16_224', pretrained=True, num_classes=3)
-        self.config = resolve_data_config({},model=self.encoder)
+        self.config = resolve_data_config({}, model=self.encoder)
         self.transform = create_transform(**self.config)
         for para in self.encoder.parameters():
             assert para.requires_grad is True
@@ -72,7 +67,7 @@ class SwinT_Image_Encoder(nn.Module):
     def __init__(self):
         super(SwinT_Image_Encoder, self).__init__()
         self.encoder = timm.create_model('swin_base_patch4_window7_224', pretrained=True, num_classes=3)
-        self.config = resolve_data_config({},model=self.encoder)
+        self.config = resolve_data_config({}, model=self.encoder)
         self.transform = create_transform(**self.config)
         for para in self.encoder.parameters():
             assert para.requires_grad is True
@@ -85,7 +80,7 @@ class TNT_Image_Encoder(nn.Module):
     def __init__(self):
         super(TNT_Image_Encoder, self).__init__()
         self.encoder = timm.create_model('tnt_s_patch16_224', pretrained=True, num_classes=3)
-        self.config = resolve_data_config({},model=self.encoder)
+        self.config = resolve_data_config({}, model=self.encoder)
         self.transform = create_transform(**self.config)
         for para in self.encoder.parameters():
             assert para.requires_grad is True
@@ -98,7 +93,7 @@ class PiT_Image_Encoder(nn.Module):
     def __init__(self):
         super(PiT_Image_Encoder, self).__init__()
         self.encoder = timm.create_model('pit_b_224', pretrained=True, num_classes=3)
-        self.config = resolve_data_config({},model=self.encoder)
+        self.config = resolve_data_config({}, model=self.encoder)
         self.transform = create_transform(**self.config)
         for para in self.encoder.parameters():
             assert para.requires_grad is True
@@ -113,7 +108,7 @@ class MMBT_ImageEncoder(nn.Module):
         model = torchvision.models.resnet152(pretrained=True)
         modules = list(model.children())[:-2]
         self.model = nn.Sequential(*modules)
-        self.pool = nn.AdaptiveAvgPool2d(POOLING_BREAKDOWN[1])  ## output_size = (1,1)
+        self.pool = nn.AdaptiveAvgPool2d(POOLING_BREAKDOWN[1])  # output_size = (1,1)
         self.transform = torchvision.transforms.Compose(
             [torchvision.transforms.Resize(256),
              torchvision.transforms.CenterCrop(224),
@@ -157,9 +152,9 @@ class BERT_Text_Encoder(nn.Module):
     def forward(self, **inputs):
         bert_outputs, _ = self.bert(
             inputs['input_token_ids'],
-            attention_mask=inputs['input_token_ids'].ne(0))  ## bz x len_seq x hidden_size
+            attention_mask=inputs['input_token_ids'].ne(0))  # bz x len_seq x hidden_size
 
-        cls_outputs = bert_outputs[:, 0, :]  ## bz x hidden_size
+        cls_outputs = bert_outputs[:, 0, :]  # bz x hidden_size
         return cls_outputs
 
 
@@ -183,7 +178,7 @@ def choose_image_encoder(args):
 
 def choose_multi_encoder(args):
     if args.mixed_enc == "mmbt":
-        model =  MMBT(args.num_label)
+        model = MMBT(args.num_label)
     else:
         raise ValueError("unknown multimodal encoder")
     return model, model.image_encoder.transform

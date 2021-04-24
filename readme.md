@@ -1,8 +1,11 @@
 ## Thesis
 
 ### prerequisite
-pip install requirements
-mkdir output
+`pip install -r requirements.txt`
+
+`pip install git+https://github.com/rwightman/pytorch-image-models.git`
+
+`mkdir output`
 
 ### Command
 ~~~shell script

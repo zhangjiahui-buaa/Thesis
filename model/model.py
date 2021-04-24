@@ -50,7 +50,7 @@ class Image_Model(nn.Module):
     def __init__(self, args):
         super(Image_Model, self).__init__()
         self.encoder, self.image_transform = choose_image_encoder(args)
-        self.decoder = Image_Decoder(Image_Feature_Size[self.args.image_enc], self.args.label_num)
+        self.decoder = Image_Decoder(Image_Feature_Size[args.image_enc], args.label_num)
 
     def forward(self, **inputs):
         # bz x 3 x 224 x 224 -> bz x args.label_num

@@ -83,14 +83,15 @@ def evaluate(model: nn.Module, dev_loader, args, logger: logging.Logger):
                 label = batch['text_label']
             total += len(label)
             total_loss += loss * len(label)
-            correct += (pred == label).sum()
+            correct += (pred == label).sum().item()
 
-    logger.info("Evaluate Result--Dev set Loss:{}, Dev set Accuract:{}".format(total_loss / total, correct / total))
+    logger.info("Evaluate Result--Dev set Loss:{.4f}, Dev set Accuracy:{.4f}".format(total_loss / total, correct / total))
 
     return correct / total, total_loss / total
 
 
-def train(model: nn.Module, train_loader, dev_loader, optimizer: optim.Optimizer, args, logger: logging.Logger) -> None:
+def train(model: nn.Module, train_loader, dev_loader, optimizers: List[optim.Optimizer], args,
+          logger: logging.Logger) -> None:
     logger.info("**********Begin Training**********")
     best_accuracy = 0
     for epoch in range(args.epoch):
@@ -98,13 +99,15 @@ def train(model: nn.Module, train_loader, dev_loader, optimizer: optim.Optimizer
         # train model
         model.train()
         for step, batch in enumerate(train_loader):
-            optimizer.zero_grad()
+            for optimizer in optimizers:
+                optimizer.zero_grad()
             assert isinstance(batch, dict)
             loss = model.compute_loss(**batch)[0]
             loss.backward()
-            optimizer.step()
+            for optimizer in optimizers:
+                optimizer.step()
             if step % args.log_step == 0:
-                logger.info("Epoch:{}, Step:{}, Training Loss:{}".format(epoch, step, loss))
+                logger.info("Epoch:{}, Step:{}, Training Loss:{.4f}".format(epoch, step, loss))
 
         # evaluate and save best model
         accuracy, _ = evaluate(model, dev_loader, args, logger)
@@ -116,16 +119,27 @@ def train(model: nn.Module, train_loader, dev_loader, optimizer: optim.Optimizer
     logger.info("Best accuracy on dev set is {}".format(best_accuracy))
 
 
-def get_model_and_transform(args, logger: logging.Logger):
+def get_model_transform_and_optimizer(args, logger: logging.Logger):
     image_transform = None
+    optimizers = []
     if args.task == "text":
         model = Text_Model(args).to(args.device)
+        optimizers.append(optim.Adam(model.encoder.parameters(), args.enc_lr))
+        optimizers.append(optim.Adam(model.decoder.parameters(), args.dec_lr))
     elif args.task == "image":
         model = Image_Model(args).to(args.device)
         image_transform = model.image_transform
+        optimizers.append(optim.Adam(model.encoder.parameters(), args.enc_lr))
+        optimizers.append(optim.Adam(model.decoder.parameters(), args.dec_lr))
     elif args.task == "multi":
         model = MultiModal_Model(args).to(args.device)
         image_transform = model.image_transform
+        if args.multi_type == "separate":
+            optimizers.append(optim.Adam(model.image_encoder.parameters(), args.enc_lr))
+            optimizers.append(optim.Adam(model.text_encoder.parameters(), args.enc_lr))
+            optimizers.append(optim.Adam(model.decoder.parameters(), args.dec_lr))
+        else:
+            optimizers.append(optim.Adam(model.mixed_encoder.parameters(), args.dec_lr))
     else:
         raise NotImplementedError("Unknown task type, only support text, image, multi")
     if args.model_checkpoint is not None:
@@ -133,11 +147,11 @@ def get_model_and_transform(args, logger: logging.Logger):
         logger.info('Initialize {} from checkpoint {} over.'.format(model, args.model_checkpoint))
     else:
         logger.info('Initialize {} randomly.'.format(model))
-    return model, image_transform
+    return model, image_transform, optimizers
 
 
-def save_model(model: nn.Module, accuracy: torch.Tensor, logger: logging.Logger, args):
-    saved_path = os.path.join(args.save_dir, str(accuracy.item()) + ".pt")
+def save_model(model: nn.Module, accuracy: float, logger: logging.Logger, args):
+    saved_path = os.path.join(args.save_dir, str(accuracy) + ".pt")
     logger.info("Saving model at {}".format(saved_path))
     torch.save(model.state_dict(), saved_path)
     logger.info("Done!")
@@ -170,14 +184,13 @@ def main():
     for k in list(vars(args).keys()):
         logger.info('%s: %s' % (k, vars(args)[k]))
 
-    logger.info("Loading model")
-    model, transform = get_model_and_transform(args=args, logger=logger)
+    logger.info("Loading model, optimizers and image tranformation")
+    model, transform, optimizers = get_model_transform_and_optimizer(args=args, logger=logger)
 
     logger.info("Loading data")
     data_loaders = get_train_and_dev_loader(args=args, transform=transform)
 
-    optimizer = optim.Adam(model.parameters(), 0.001)
-    train(model, data_loaders[0], data_loaders[1], optimizer, args, logger)
+    train(model, data_loaders[0], data_loaders[1], optimizers, args, logger)
 
     # infer(model, data_loader[2], args, logger)
 
