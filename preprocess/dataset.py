@@ -238,8 +238,11 @@ def load_Hate_data_iterator(path: str,
         train_data_loader = DataLoader(
             train_dataset,
             batch_sampler=BucketBatchSampler(SequentialSampler(list(range(len(train_dataset)))), batch_size=batch_size,
-                                             drop_last=False),
-            collate_fn=lambda x: tensor_collate_fn(x, True))
+                                             drop_last=True
+                                             ),
+            collate_fn=lambda x: tensor_collate_fn(x, True),
+            drop_last=True
+        )
 
         return train_data_loader, dev_data_loader
 
@@ -249,7 +252,9 @@ def load_Hate_data_iterator(path: str,
             train_dataset,
             batch_size=batch_size,
             shuffle=True,
-            collate_fn=lambda x: tensor_collate_fn(x, True))
+            collate_fn=lambda x: tensor_collate_fn(x, True),
+            drop_last=True
+        )
         return train_data_loader, dev_data_loader, test_data_loader
 
 
