@@ -178,7 +178,7 @@ def choose_image_encoder(args):
 
 def choose_multi_encoder(args):
     if args.mixed_enc == "mmbt":
-        model = MMBT(args.num_label)
+        model = MMBT(args.label_num)
     else:
         raise ValueError("unknown multimodal encoder")
     return model, model.image_encoder.transform
