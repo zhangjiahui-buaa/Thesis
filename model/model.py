@@ -29,7 +29,7 @@ class MultiModal_Model(nn.Module):
             # inputs -> bz x num_labels(logits)
             return self.decoder(self.image_encoder(inputs["input_image"]), self.text_encoder(**inputs))
         else:
-            loss, logits = self.mixed_encoder(inputs["input_image"], inputs["input_text"], inputs['combined_label'])
+            loss, logits = self.mixed_encoder(inputs["input_image"], inputs["input_token_ids"], inputs['combined_label'])
             return logits
 
     def compute_loss(self, **inputs):
