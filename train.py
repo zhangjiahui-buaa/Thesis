@@ -85,7 +85,8 @@ def evaluate(model: nn.Module, dev_loader, args, logger: logging.Logger):
             total_loss += loss * len(label)
             correct += (pred == label).sum().item()
 
-    logger.info("Evaluate Result--Dev set Loss:{.4f}, Dev set Accuracy:{.4f}".format(total_loss / total, correct / total))
+    logger.info(
+        "Evaluate Result--Dev set Loss:{.4f}, Dev set Accuracy:{.4f}".format(total_loss / total, correct / total))
 
     return correct / total, total_loss / total
 
@@ -174,7 +175,9 @@ def main():
     args = parse_args()
 
     cur_time = int(time.time())
-    args.save_dir = os.path.join("output", str(cur_time))
+    args.save_dir = os.path.join("output",
+                                 "{}_{}_{}_{}_{}".format(str(cur_time), args.task, args.multi_type, args.image_enc,
+                                                         args.text_enc))
     if not os.path.exists(args.save_dir):
         os.mkdir(args.save_dir)
 
