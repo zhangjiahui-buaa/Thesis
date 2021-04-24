@@ -22,7 +22,8 @@
 - replace the cnn encoder in MMBT with Vision transformer
 - fusion technique
 - for each vit, compare the pretrained version against the vanilla version
--
+- ensemble model
+- add visual bert *important!*
 
 ### hateful memes unzip password: EWryfbZyNviilcDF
 

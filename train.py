@@ -140,7 +140,8 @@ def get_model_transform_and_optimizer(args, logger: logging.Logger):
             optimizers.append(optim.Adam(model.text_encoder.parameters(), args.enc_lr))
             optimizers.append(optim.Adam(model.decoder.parameters(), args.dec_lr))
         else:
-            optimizers.append(optim.Adam(model.mixed_encoder.parameters(), args.dec_lr))
+            optimizers.append(optim.Adam(model.mixed_encoder.model.mmbt.parameters(), args.enc_lr))
+            optimizers.append(optim.Adam(model.mixed_encoder.model.classifier.parameters(), args.dec_lr))
     else:
         raise NotImplementedError("Unknown task type, only support text, image, multi")
     if args.model_checkpoint is not None:
