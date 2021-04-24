@@ -61,7 +61,7 @@ class _Hateful_Dataset:
             label_file = jsonlines.open("datasets/Hateful/test_seen.jsonl")
         for label in tqdm(label_file):
             _id = label["id"]
-            image = Image.open(os.path.join(self.data_dir, label["img"]))
+            image = Image.open(os.path.join(self.data_dir, label["img"])).convert('RGB')
             image_np = np.array(image)
             if "label" in label:
                 example = Hateful_Example(_id, label["text"], image_np, label["label"])
