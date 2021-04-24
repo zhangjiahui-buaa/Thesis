@@ -86,7 +86,7 @@ def evaluate(model: nn.Module, dev_loader, args, logger: logging.Logger):
             correct += (pred == label).sum().item()
 
     logger.info(
-        "Evaluate Result--Dev set Loss:{.4f}, Dev set Accuracy:{.4f}".format(total_loss / total, correct / total))
+        "Evaluate Result--Dev set Loss:{:.4f}, Dev set Accuracy:{:.4f}".format(total_loss / total, correct / total))
 
     return correct / total, total_loss / total
 
@@ -108,7 +108,7 @@ def train(model: nn.Module, train_loader, dev_loader, optimizers: List[optim.Opt
             for optimizer in optimizers:
                 optimizer.step()
             if step % args.log_step == 0:
-                logger.info("Epoch:{}, Step:{}, Training Loss:{.4f}".format(epoch, step, loss))
+                logger.info("Epoch:{}, Step:{}, Training Loss:{:.4f}".format(epoch, step, loss))
 
         # evaluate and save best model
         accuracy, _ = evaluate(model, dev_loader, args, logger)
@@ -117,7 +117,7 @@ def train(model: nn.Module, train_loader, dev_loader, optimizers: List[optim.Opt
             save_model(model, best_accuracy, logger, args)
 
     logger.info("**********Finish Training**********")
-    logger.info("Best accuracy on dev set is {}".format(best_accuracy))
+    logger.info("Best accuracy on dev set is {:.4f}".format(best_accuracy))
 
 
 def get_model_transform_and_optimizer(args, logger: logging.Logger):
