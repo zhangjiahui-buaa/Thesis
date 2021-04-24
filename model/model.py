@@ -20,7 +20,7 @@ class MultiModal_Model(nn.Module):
             self.decoder = Image_and_Text_Decoder(Image_Feature_Size[args.image_enc],
                                                   Text_Feature_Size[args.text_enc], args.label_num)
         elif args.multi_type == "together":
-            self.mixed_encoder = choose_multi_encoder(args)
+            self.mixed_encoder, self.image_transform = choose_multi_encoder(args)
         else:
             raise ValueError("unsupported multi type")
 
