@@ -93,7 +93,7 @@ class _MVSA_Dataset:
     def load_raw_single_data(self, data_dir: str, _id: int, raw_text_label: str, raw_image_label: str) -> MVSA_Example:
         text_file = open(os.path.join(data_dir, 'data/{}.txt'.format(_id)), 'r', encoding='utf-8', errors='ignore')
         text = ' '.join(text_file.readlines())
-        image = Image.open(os.path.join(data_dir, 'data/{}.jpg'.format(_id)))
+        image = Image.open(os.path.join(data_dir, 'data/{}.jpg'.format(_id))).convert('RGB')
         #image = cv2.imread(os.path.join(data_dir, 'data/{}.jpg'.format(_id)))
 
         image_np = np.array(image)
