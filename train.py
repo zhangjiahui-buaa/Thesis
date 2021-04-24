@@ -13,11 +13,11 @@ import os
 def parse_args():
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('-task', '--task', help='text, image or multi', type=str, default="image")
+    parser.add_argument('-task', '--task', help='text, image or multi', type=str, default="multi")
     parser.add_argument('-multi_type', '--multi_type', help='if multi, encode image and text separately or together?',
                         type=str, default="separate")
-    parser.add_argument('-dataset', '--dataset', help='mvsa or hateful', type=str, default="mvsa")
-    parser.add_argument('-label_num', '--label_num', help='number of label', type=int, default=3)
+    parser.add_argument('-dataset', '--dataset', help='mvsa or hateful', type=str, default="hateful")
+    parser.add_argument('-label_num', '--label_num', help='number of label', type=int, default=2)
     parser.add_argument('-image_enc', '--image_enc', help='cnn, tranformer or vit', type=str, default="cnn")
     parser.add_argument('-image_enc_pre_trained', '--image_enc_pre_trained', help='true or false', type=bool,
                         default=True)
@@ -28,8 +28,8 @@ def parse_args():
     parser.add_argument('-batch_size', '--batch_size', help='batch size', type=int, default="32")
     parser.add_argument('-device', '--device', help='cpu or gpu', type=str,
                         default="cuda" if torch.cuda.is_available() else "cpu")
-    parser.add_argument('-enc_lr', '--enc_lr', help='learning rate of encoder', type=float, default=1e-3)
-    parser.add_argument('-dec_lr', '--dec_lr', help='learning rate of decoder', type=float, default=1e-2)
+    parser.add_argument('-enc_lr', '--enc_lr', help='learning rate of encoder', type=float, default=3e-5)
+    parser.add_argument('-dec_lr', '--dec_lr', help='learning rate of decoder', type=float, default=1e-3)
     parser.add_argument('-epoch', '--epoch', help='training epochs', type=int, default=10)
     parser.add_argument('-log', '--log', help='path to save logging info', type=str, default="output/logging.log")
     parser.add_argument('-log_step', '--log_step', help='print logging info by step', type=int, default=10)
