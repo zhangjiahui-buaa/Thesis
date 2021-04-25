@@ -25,5 +25,8 @@
 - ensemble model
 - add visual bert *important!*
 
+### Bugs
+- if add `print(pred)` in `evaluate()`, accuracy is higher
+
 ### hateful memes unzip password: EWryfbZyNviilcDF
 

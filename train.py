@@ -4,6 +4,7 @@ from model.model import *
 import torch.nn as nn
 import torch
 import torch.optim as optim
+from transformers import AdamW
 import logging
 import time
 import os
@@ -26,6 +27,7 @@ def parse_args():
     parser.add_argument('-model_checkpoint', '--model_checkpoint', help='path to model', type=str, default=None)
     parser.add_argument('-bert_version', '--bert_version', help='bert version', type=str, default="bert-base-uncased")
     parser.add_argument('-batch_size', '--batch_size', help='batch size', type=int, default="32")
+    parser.add_argument('-weight_decay', '--weight_decay', help='weight decay', type=float, default=0.01)
     parser.add_argument('-device', '--device', help='cpu or gpu', type=str,
                         default="cuda" if torch.cuda.is_available() else "cpu")
     parser.add_argument('-enc_lr', '--enc_lr', help='learning rate of encoder', type=float, default=3e-5)
@@ -125,23 +127,25 @@ def get_model_transform_and_optimizer(args, logger: logging.Logger):
     optimizers = []
     if args.task == "text":
         model = Text_Model(args).to(args.device)
-        optimizers.append(optim.Adam(model.encoder.parameters(), args.enc_lr))
-        optimizers.append(optim.Adam(model.decoder.parameters(), args.dec_lr))
+        optimizers.append(AdamW(model.encoder.parameters(), args.enc_lr, weight_decay=args.weight_decay))
+        optimizers.append(AdamW(model.decoder.parameters(), args.dec_lr, weight_decay=args.weight_decay))
     elif args.task == "image":
         model = Image_Model(args).to(args.device)
         image_transform = model.image_transform
-        optimizers.append(optim.Adam(model.encoder.parameters(), args.enc_lr))
-        optimizers.append(optim.Adam(model.decoder.parameters(), args.dec_lr))
+        optimizers.append(AdamW(model.encoder.parameters(), args.enc_lr, weight_decay=args.weight_decay))
+        optimizers.append(AdamW(model.decoder.parameters(), args.dec_lr, weight_decay=args.weight_decay))
     elif args.task == "multi":
         model = MultiModal_Model(args).to(args.device)
         image_transform = model.image_transform
         if args.multi_type == "separate":
-            optimizers.append(optim.Adam(model.image_encoder.parameters(), args.enc_lr))
-            optimizers.append(optim.Adam(model.text_encoder.parameters(), args.enc_lr))
-            optimizers.append(optim.Adam(model.decoder.parameters(), args.dec_lr))
+            optimizers.append(AdamW(model.image_encoder.parameters(), args.enc_lr, weight_decay=args.weight_decay))
+            optimizers.append(AdamW(model.text_encoder.parameters(), args.enc_lr, weight_decay=args.weight_decay))
+            optimizers.append(AdamW(model.decoder.parameters(), args.dec_lr, weight_decay=args.weight_decay))
         else:
-            optimizers.append(optim.Adam(model.mixed_encoder.model.mmbt.parameters(), args.enc_lr))
-            optimizers.append(optim.Adam(model.mixed_encoder.model.classifier.parameters(), args.dec_lr))
+            optimizers.append(
+                AdamW(model.mixed_encoder.model.mmbt.parameters(), args.enc_lr, weight_decay=args.weight_decay))
+            optimizers.append(
+                AdamW(model.mixed_encoder.model.classifier.parameters(), args.dec_lr, weight_decay=args.weight_decay))
     else:
         raise NotImplementedError("Unknown task type, only support text, image, multi")
     if args.model_checkpoint is not None:
