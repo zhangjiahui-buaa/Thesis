@@ -103,9 +103,9 @@ class PiT_Image_Encoder(nn.Module):
 
 
 class MMBT_ImageEncoder(nn.Module):
-    def __init__(self):
+    def __init__(self, args):
         super().__init__()
-        model = torchvision.models.resnet152(pretrained=True)
+        '''model = torchvision.models.resnet152(pretrained=True)
         modules = list(model.children())[:-2]
         self.model = nn.Sequential(*modules)
         self.pool = nn.AdaptiveAvgPool2d(POOLING_BREAKDOWN[1])  # output_size = (1,1)
@@ -116,25 +116,28 @@ class MMBT_ImageEncoder(nn.Module):
              torchvision.transforms.Normalize(
                  [0.485, 0.456, 0.406],
                  [0.229, 0.224, 0.225])
-             ])
+             ])'''
+        self.model, self.transform = choose_image_encoder(args)
 
     def forward(self, x):
-        # Bx3x224x224 -> Bx2048x7x7 -> Bx2048xN -> BxNx2048
+        return self.model(x).unsqueeze(1)
+        ''' Bx3x224x224 -> Bx2048x7x7 -> Bx2048xN -> BxNx2048
         out = self.pool(self.model(x))
         out = torch.flatten(out, start_dim=2)
         out = out.transpose(1, 2).contiguous()
-        return out  # BxNx2048, N = 1
+        print(out.shape)
+        return out   BxNx2048, N = 1'''
 
 
 class MMBT(nn.Module):
-    def __init__(self, num_labels):
+    def __init__(self, args, num_labels):
         super(MMBT, self).__init__()
-        self.image_encoder = MMBT_ImageEncoder()
+        self.image_encoder = MMBT_ImageEncoder(args)
         self.transformer_config = AutoConfig.from_pretrained("bert-base-uncased")
         self.transformer = AutoModel.from_pretrained(
             "bert-base-uncased", config=self.transformer_config
         )
-        self.config = MMBTConfig(self.transformer_config, num_labels=num_labels)
+        self.config = MMBTConfig(self.transformer_config, num_labels=num_labels, modal_hidden_size=2048)
         self.model = MMBTForClassification(self.config, self.transformer, self.image_encoder)
 
     def forward(self, input_image, input_text, labels):
@@ -178,7 +181,7 @@ def choose_image_encoder(args):
 
 def choose_multi_encoder(args):
     if args.mixed_enc == "mmbt":
-        model = MMBT(args.label_num)
+        model = MMBT(args, args.label_num)
     else:
         raise ValueError("unknown multimodal encoder")
     return model, model.image_encoder.transform
