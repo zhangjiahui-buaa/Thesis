@@ -8,6 +8,7 @@ from transformers import AdamW
 import logging
 import time
 import os
+from torchmetrics import AUROC
 
 
 # TODO: re-construct the code structure
@@ -75,21 +76,28 @@ def evaluate(model: nn.Module, dev_loader, args, logger: logging.Logger):
     total = 0
     total_loss = 0
     correct = 0
+    all_prob = torch.tensor([[0, 0]])
+    all_label = torch.tensor([0])
+    auroc = AUROC(num_classes=2, pos_label=1)
     with torch.no_grad():
         for batch in dev_loader:
-            loss, pred = model.compute_loss(**batch)
+            loss, pred, logits = model.compute_loss(**batch)
+            prob = F.softmax(logits, dim=-1)
+            all_prob = torch.cat([all_prob, prob])
             if args.task == 'multi':
                 label = batch["combined_label"]
             elif args.task == 'image':
                 label = batch['image_label']
             else:
                 label = batch['text_label']
+            all_label = torch.cat([all_label, label])
             total += len(label)
             total_loss += loss * len(label)
             correct += (pred == label).sum().item()
 
     logger.info(
-        "Evaluate Result--Dev set Loss:{:.4f}, Dev set Accuracy:{:.4f}".format(total_loss / total, correct / total))
+        "Evaluate Result--Dev set Loss:{:.4f}, Dev set Accuracy:{:.4f}, Dev set AUROC:{:.4f}".format(
+            total_loss / total, correct / total, auroc(all_prob, all_label)))
 
     return correct / total, total_loss / total
 

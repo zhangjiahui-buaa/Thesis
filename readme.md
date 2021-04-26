@@ -24,9 +24,9 @@
 - for each vit, compare the pretrained version against the vanilla version
 - ensemble model
 - add visual bert *important!*
+- use feature extracted by faster-rcnn
+- add auroc
 
-### Bugs
-- if add `print(pred)` in `evaluate()`, accuracy is higher
 
 ### hateful memes unzip password: EWryfbZyNviilcDF
 

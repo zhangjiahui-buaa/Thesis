@@ -56,7 +56,7 @@ class MultiModal_Model(nn.Module):
         pred = torch.argmax(logits, dim=-1)
         loss_fn = LabelSmoothingLoss(self.args.label_num, self.args.label_smoothing)
         loss = loss_fn(logits, inputs['combined_label'])
-        return loss, pred
+        return loss, pred, logits
 
     def predict(self, **inputs):
         logits = self.forward(**inputs)
@@ -80,7 +80,7 @@ class Image_Model(nn.Module):
         pred = torch.argmax(logits, dim=-1)
         loss_fn = LabelSmoothingLoss(self.args.label_num, self.args.label_smoothing)
         loss = loss_fn(logits, inputs['image_label'])
-        return loss, pred
+        return loss, pred, logits
 
     def predict(self, **inputs):
         logits = self.forward(**inputs)
@@ -104,7 +104,7 @@ class Text_Model(nn.Module):
         pred = torch.argmax(logits, dim=-1)
         loss_fn = LabelSmoothingLoss(self.args.label_num, self.args.label_smoothing)
         loss = loss_fn(logits, inputs['text_label'])
-        return loss, pred
+        return loss, pred, logits
 
     def predict(self, **inputs):
         logits = self.forward(**inputs)
