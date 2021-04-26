@@ -4,6 +4,6 @@ datasets/Hate.zip
 output/*
 preprocess/*/__pycache__/*
 preprocess/__pycache__/
-
+save/
 *.pyc
 imagenet_classes.txt

@@ -28,6 +28,7 @@ def parse_args():
     parser.add_argument('-bert_version', '--bert_version', help='bert version', type=str, default="bert-base-uncased")
     parser.add_argument('-batch_size', '--batch_size', help='batch size', type=int, default="32")
     parser.add_argument('-weight_decay', '--weight_decay', help='weight decay', type=float, default=0.01)
+    parser.add_argument('-label_smoothing', '--label_smoothing', help='label smoothing', type=float, default=0.2)
     parser.add_argument('-device', '--device', help='cpu or gpu', type=str,
                         default="cuda" if torch.cuda.is_available() else "cpu")
     parser.add_argument('-enc_lr', '--enc_lr', help='learning rate of encoder', type=float, default=3e-5)
