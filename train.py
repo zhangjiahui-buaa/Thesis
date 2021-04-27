@@ -198,9 +198,9 @@ def save_model(model: nn.Module, auroc: float, logger: logging.Logger, args, lab
     saved_path = os.path.join(args.save_dir, "model.pt")
     logger.info("Saving model at {}".format(saved_path))
     torch.save(model.state_dict(), saved_path)
-    json.dump(label_dict, open(os.path.join(saved_path, "label.json"), 'w'))
-    json.dump(pred_dict, open(os.path.join(saved_path, "pred.json"), 'w'))
-    json.dump(prob_dict, open(os.path.join(saved_path, "probl.json"), 'w'))
+    json.dump(label_dict, open(os.path.join(args.save_dir, "label.json"), 'w'))
+    json.dump(pred_dict, open(os.path.join(args.save_dir, "pred.json"), 'w'))
+    json.dump(prob_dict, open(os.path.join(args.save_dir, "probl.json"), 'w'))
     logger.info("Done!")
 
 
