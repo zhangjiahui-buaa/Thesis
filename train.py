@@ -9,6 +9,7 @@ import logging
 import time
 import os
 from torchmetrics import AUROC
+import json
 
 
 # TODO: re-construct the code structure
@@ -36,6 +37,7 @@ def parse_args():
                         default=True)
     parser.add_argument('-text_enc', '--text_enc', help='lstm or bert', type=str, default="bert")
     parser.add_argument('-mixed_enc', '--mixed_enc', help='mmbt or unit', type=str, default="mmbt")
+    parser.add_argument('-dec_mode', '--dec_mode', help='decoder mode', type=str, default="DC")
     parser.add_argument('-model_checkpoint', '--model_checkpoint', help='path to model', type=str, default=None)
     parser.add_argument('-bert_version', '--bert_version', help='bert version', type=str, default="bert-base-uncased")
     parser.add_argument('-batch_size', '--batch_size', help='batch size', type=int, default="32")
@@ -78,7 +80,8 @@ def get_train_and_dev_loader(args, transform):
 
 
 def infer(models: List[nn.Module], test_loader, args, logger: logging.Logger):  # infer on test set
-    model.eval()
+    for model in models:
+        model.eval()
     pass
 
 
@@ -94,6 +97,7 @@ def evaluate(model: nn.Module, dev_loader, args, logger: logging.Logger):
     all_prob = torch.tensor([[0, 0]]).to(args.device)
     all_label = torch.tensor([0]).to(args.device)
     auroc = AUROC(num_classes=2, pos_label=1)
+    label_dict, pred_dict, prob_dict = {}, {}, {}
     with torch.no_grad():
         for batch in dev_loader:
             loss, pred, logits = model.compute_loss(**batch)
@@ -105,6 +109,10 @@ def evaluate(model: nn.Module, dev_loader, args, logger: logging.Logger):
                 label = batch['image_label']
             else:
                 label = batch['text_label']
+            for idx, item in enumerate(prob):
+                prob_dict[batch['input_id'][idx].cpu().item()] = [item[0].cpu().item(), item[1].cpu().item()]
+                pred_dict[batch['input_id'][idx].cpu().item()] = pred[idx].cpu().item()
+                label_dict[batch['input_id'][idx].cpu().item()] = label[idx].cpu().item()
             all_label = torch.cat([all_label, label])
             total += len(label)
             total_loss += loss * len(label)
@@ -116,7 +124,7 @@ def evaluate(model: nn.Module, dev_loader, args, logger: logging.Logger):
         "Evaluate Result--Dev set Loss:{:.4f}, Dev set Accuracy:{:.4f}, Dev set AUROC:{:.4f}".format(
             total_loss / total, correct / total, auroc_res))
 
-    return correct / total, total_loss / total, auroc_res
+    return correct / total, total_loss / total, auroc_res, label_dict, pred_dict, prob_dict
 
 
 def train(model: nn.Module, train_loader, dev_loader, optimizers: List[optim.Optimizer], args,
@@ -140,11 +148,11 @@ def train(model: nn.Module, train_loader, dev_loader, optimizers: List[optim.Opt
                 logger.info("Epoch:{}, Step:{}, Training Loss:{:.4f}".format(epoch, step, loss))
 
         # evaluate and save best model
-        accuracy, _, auroc = evaluate(model, dev_loader, args, logger)
+        accuracy, _, auroc, label_dict, pred_dict, prob_dict = evaluate(model, dev_loader, args, logger)
         if auroc > best_auroc:
             best_auroc = auroc
             corresponding_accuracy = accuracy
-            save_model(model, corresponding_accuracy, logger, args)
+            save_model(model, corresponding_accuracy, logger, args, label_dict, pred_dict, prob_dict)
 
     logger.info("**********Finish Training**********")
     logger.info("Best auroc on dev set is {:.4f}".format(best_auroc))
@@ -185,10 +193,13 @@ def get_model_transform_and_optimizer(args, logger: logging.Logger):
     return model, image_transform, optimizers
 
 
-def save_model(model: nn.Module, auroc: float, logger: logging.Logger, args):
+def save_model(model: nn.Module, auroc: float, logger: logging.Logger, args, label_dict, pred_dict, prob_dict):
     saved_path = os.path.join(args.save_dir, "model.pt")
     logger.info("Saving model at {}".format(saved_path))
     torch.save(model.state_dict(), saved_path)
+    json.dump(label_dict, open(os.path.join(saved_path, "label.json"), 'w'))
+    json.dump(pred_dict, open(os.path.join(saved_path, "pred.json"), 'w'))
+    json.dump(prob_dict, open(os.path.join(saved_path, "probl.json"), 'w'))
     logger.info("Done!")
 
 

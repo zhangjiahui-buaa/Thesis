@@ -6,6 +6,8 @@ Image_Feature_Size = {
     "tnt": 384,
     "pit": 1024
 }
+Image_Feature_Hidden_Size = 768
 Text_Feature_Size = {
     "bert": 768
 }
+Text_Feature_Hidden_Size = 768

@@ -20,7 +20,10 @@
 
 ### TODO
 - replace the cnn encoder in MMBT with Vision transformer
-- fusion technique
+- fusion technique *important*
+  - Concatenate directly(DC)
+  - Pass through a linear layer, then concatenate(LTC)
+  - Pass through a linear and a self-attention layer, then concatenate(STC)
 - for each vit, compare the pretrained version against the vanilla version
 - ensemble model
 - add visual bert *important!*

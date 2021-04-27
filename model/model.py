@@ -35,7 +35,7 @@ class MultiModal_Model(nn.Module):
         if args.multi_type == "separate":
             self.image_encoder, self.image_transform = choose_image_encoder(args)
             self.text_encoder = choose_text_encoder(args)
-            self.decoder = Image_and_Text_Decoder(Image_Feature_Size[args.image_enc],
+            self.decoder = Image_and_Text_Decoder(args, Image_Feature_Size[args.image_enc],
                                                   Text_Feature_Size[args.text_enc], args.label_num)
         elif args.multi_type == "together":
             self.mixed_encoder, self.image_transform = choose_multi_encoder(args)

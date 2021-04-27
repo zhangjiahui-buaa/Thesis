@@ -136,6 +136,7 @@ class Hate_Dataset(MVSA_Dataset):
         input_tokens = [self.tokenizer.cls_token] + tokens + [self.tokenizer.sep_token]
         input_tokens_ids = self.tokenizer.convert_tokens_to_ids(input_tokens)
         return {
+            'input_id': torch.tensor(example.id, dtype=torch.long, device=self.device),
             'input_token_ids': torch.tensor(input_tokens_ids, dtype=torch.long, device=self.device),
             'input_tokens': input_tokens,
             'original_image_np': original_image_np,
@@ -154,7 +155,7 @@ def tensor_collate_fn(inputs: List[Dict], is_training: bool) -> Dict:
             collated[key] = pad_sequence(values, batch_first=True, padding_value=0)
         elif key == 'input_image':
             collated[key] = torch.stack(values)
-        elif key in ['text_label', 'image_label', 'combined_label']:
+        elif key in ['text_label', 'image_label', 'combined_label','input_id']:
             collated[key] = torch.stack(values).squeeze(-1)
         else:
             collated[key] = values
