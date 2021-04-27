@@ -11,6 +11,7 @@ from transformers import (
 from timm.data import resolve_data_config
 from timm.data.transforms_factory import create_transform
 import torchvision
+from model.utils import *
 
 POOLING_BREAKDOWN = {1: (1, 1), 2: (2, 1), 3: (3, 1), 4: (2, 2), 5: (5, 1), 6: (3, 2), 7: (7, 1), 8: (4, 2), 9: (3, 3)}
 
@@ -149,7 +150,7 @@ class MMBT(nn.Module):
         self.transformer = AutoModel.from_pretrained(
             "bert-base-uncased", config=self.transformer_config
         )
-        self.config = MMBTConfig(self.transformer_config, num_labels=num_labels, modal_hidden_size=2048)
+        self.config = MMBTConfig(self.transformer_config, num_labels=num_labels, modal_hidden_size=Image_Feature_Size[args.image_enc])
         self.model = MMBTForClassification(self.config, self.transformer, self.image_encoder)
 
     def forward(self, input_image, input_text, labels):

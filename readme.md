@@ -26,6 +26,18 @@
 - add visual bert *important!*
 - use feature extracted by faster-rcnn
 
+### Result
+
+1. Separate(Simple concatenate)
+
+| Resnet52 | Vanilla Vit | Vit  | Vanilla Swint | Swint | Vanilla TNT | TNT  | Vanilla PiT | PiT  |
+| -------- | ----------- | ---- | ------------- | ----- | ----------- | ---- | ----------- | ---- |
+|          |             |      |               |       |             |      |             |      |
+
+
+
+
+
 
 ### hateful memes unzip password: EWryfbZyNviilcDF
 
