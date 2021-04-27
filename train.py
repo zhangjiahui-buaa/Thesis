@@ -107,7 +107,7 @@ def evaluate(model: nn.Module, dev_loader, args, logger: logging.Logger):
 def train(model: nn.Module, train_loader, dev_loader, optimizers: List[optim.Optimizer], args,
           logger: logging.Logger) -> None:
     logger.info("**********Begin Training**********")
-    best_accuracy = 0
+    corresponding_accuracy = 0
     best_auroc = 0
     for epoch in range(args.epoch):
         logger.info('Begin Epoch: {}'.format(epoch))
@@ -126,16 +126,14 @@ def train(model: nn.Module, train_loader, dev_loader, optimizers: List[optim.Opt
 
         # evaluate and save best model
         accuracy, _, auroc = evaluate(model, dev_loader, args, logger)
-        if accuracy > best_accuracy:
-            best_accuracy = accuracy
-            save_model(model, best_accuracy, logger, args)
-
         if auroc > best_auroc:
             best_auroc = auroc
+            corresponding_accuracy = accuracy
+            save_model(model, corresponding_accuracy, logger, args)
 
     logger.info("**********Finish Training**********")
-    logger.info("Best accuracy on dev set is {:.4f}".format(best_accuracy))
     logger.info("Best auroc on dev set is {:.4f}".format(best_auroc))
+    logger.info("Corresponding accuracy on dev set is {:.4f}".format(corresponding_accuracy))
 
 
 def get_model_transform_and_optimizer(args, logger: logging.Logger):
@@ -172,7 +170,7 @@ def get_model_transform_and_optimizer(args, logger: logging.Logger):
     return model, image_transform, optimizers
 
 
-def save_model(model: nn.Module, accuracy: float, logger: logging.Logger, args):
+def save_model(model: nn.Module, auroc: float, logger: logging.Logger, args):
     saved_path = os.path.join(args.save_dir, "model.pt")
     logger.info("Saving model at {}".format(saved_path))
     torch.save(model.state_dict(), saved_path)
