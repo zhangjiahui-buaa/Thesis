@@ -29,12 +29,12 @@ def parse_args():
     parser.add_argument('-bert_version', '--bert_version', help='bert version', type=str, default="bert-base-uncased")
     parser.add_argument('-batch_size', '--batch_size', help='batch size', type=int, default="32")
     parser.add_argument('-weight_decay', '--weight_decay', help='weight decay', type=float, default=0.01)
-    parser.add_argument('-label_smoothing', '--label_smoothing', help='label smoothing', type=float, default=0.2)
+    parser.add_argument('-label_smoothing', '--label_smoothing', help='label smoothing', type=float, default=0.1)
     parser.add_argument('-device', '--device', help='cpu or gpu', type=str,
                         default="cuda" if torch.cuda.is_available() else "cpu")
     parser.add_argument('-enc_lr', '--enc_lr', help='learning rate of encoder', type=float, default=3e-5)
     parser.add_argument('-dec_lr', '--dec_lr', help='learning rate of decoder', type=float, default=1e-3)
-    parser.add_argument('-epoch', '--epoch', help='training epochs', type=int, default=10)
+    parser.add_argument('-epoch', '--epoch', help='training epochs', type=int, default=20)
     parser.add_argument('-log', '--log', help='path to save logging info', type=str, default="output/logging.log")
     parser.add_argument('-log_step', '--log_step', help='print logging info by step', type=int, default=50)
     parser.add_argument('-save_dir', '--save_dir', help='save directory', type=str, default="output/dir")
@@ -76,8 +76,8 @@ def evaluate(model: nn.Module, dev_loader, args, logger: logging.Logger):
     total = 0
     total_loss = 0
     correct = 0
-    all_prob = torch.tensor([[0, 0]])
-    all_label = torch.tensor([0])
+    all_prob = torch.tensor([[0, 0]]).to(args.device)
+    all_label = torch.tensor([0]).to(args.device)
     auroc = AUROC(num_classes=2, pos_label=1)
     with torch.no_grad():
         for batch in dev_loader:
@@ -94,18 +94,21 @@ def evaluate(model: nn.Module, dev_loader, args, logger: logging.Logger):
             total += len(label)
             total_loss += loss * len(label)
             correct += (pred == label).sum().item()
-
+    all_label = all_label[1:]
+    all_prob = all_prob[1:]
+    auroc_res = auroc(all_prob, all_label)
     logger.info(
         "Evaluate Result--Dev set Loss:{:.4f}, Dev set Accuracy:{:.4f}, Dev set AUROC:{:.4f}".format(
-            total_loss / total, correct / total, auroc(all_prob, all_label)))
+            total_loss / total, correct / total, auroc_res))
 
-    return correct / total, total_loss / total
+    return correct / total, total_loss / total, auroc_res
 
 
 def train(model: nn.Module, train_loader, dev_loader, optimizers: List[optim.Optimizer], args,
           logger: logging.Logger) -> None:
     logger.info("**********Begin Training**********")
     best_accuracy = 0
+    best_auroc = 0
     for epoch in range(args.epoch):
         logger.info('Begin Epoch: {}'.format(epoch))
         # train model
@@ -122,13 +125,17 @@ def train(model: nn.Module, train_loader, dev_loader, optimizers: List[optim.Opt
                 logger.info("Epoch:{}, Step:{}, Training Loss:{:.4f}".format(epoch, step, loss))
 
         # evaluate and save best model
-        accuracy, _ = evaluate(model, dev_loader, args, logger)
+        accuracy, _, auroc = evaluate(model, dev_loader, args, logger)
         if accuracy > best_accuracy:
             best_accuracy = accuracy
             save_model(model, best_accuracy, logger, args)
 
+        if auroc > best_auroc:
+            best_auroc = auroc
+
     logger.info("**********Finish Training**********")
     logger.info("Best accuracy on dev set is {:.4f}".format(best_accuracy))
+    logger.info("Best auroc on dev set is {:.4f}".format(best_auroc))
 
 
 def get_model_transform_and_optimizer(args, logger: logging.Logger):

@@ -25,7 +25,6 @@
 - ensemble model
 - add visual bert *important!*
 - use feature extracted by faster-rcnn
-- add auroc
 
 
 ### hateful memes unzip password: EWryfbZyNviilcDF
