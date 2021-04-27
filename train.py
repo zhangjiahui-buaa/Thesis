@@ -221,8 +221,8 @@ def main():
 
     cur_time = int(time.time())
     args.save_dir = os.path.join("output",
-                                 "{}_{}_{}_{}_{}".format(str(cur_time), args.task, args.multi_type, args.image_enc,
-                                                         args.text_enc))
+                                 "{}_{}_{}_{}_{}_{}".format(str(cur_time), args.task, args.multi_type, args.image_enc,
+                                                         args.text_enc, args.dec_mode))
     if not os.path.exists(args.save_dir):
         os.mkdir(args.save_dir)
 
