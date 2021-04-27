@@ -46,8 +46,8 @@ def parse_args():
     parser.add_argument('-dropout', '--dropout', help='dropout', type=float, default=0.1)
     parser.add_argument('-device', '--device', help='cpu or gpu', type=str,
                         default="cuda" if torch.cuda.is_available() else "cpu")
-    parser.add_argument('-enc_lr', '--enc_lr', help='learning rate of encoder', type=float, default=3e-5)
-    parser.add_argument('-dec_lr', '--dec_lr', help='learning rate of decoder', type=float, default=3e-3)
+    parser.add_argument('-enc_lr', '--enc_lr', help='learning rate of encoder', type=float, default=5e-5)
+    parser.add_argument('-dec_lr', '--dec_lr', help='learning rate of decoder', type=float, default=1e-2)
     parser.add_argument('-epoch', '--epoch', help='training epochs', type=int, default=20)
     parser.add_argument('-log', '--log', help='path to save logging info', type=str, default="output/logging.log")
     parser.add_argument('-log_step', '--log_step', help='print logging info by step', type=int, default=50)
