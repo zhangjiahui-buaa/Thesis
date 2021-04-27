@@ -40,7 +40,7 @@ class Image_and_Text_Decoder(nn.Module):  # TODO: weighted sum feature fusion
         self.linear_text = None
         self.linear_classifier = None
         self.attention = None
-        self.gelu = nn.GELU()
+        self.relu = nn.ReLU()
         if args.dec_mode == "DC":
             self.linear_dc_classifier = nn.Linear(image_feature_size + text_feature_size, label_num)
         else:
@@ -60,8 +60,8 @@ class Image_and_Text_Decoder(nn.Module):  # TODO: weighted sum feature fusion
         if self.args.dec_mode == "DC":
             return self.linear_dc_classifier(torch.cat([image_tensor, text_tensor], dim=-1))
         else:
-            image_tensor_embed = self.gelu(self.linear_image(image_tensor))
-            text_tensor_embed = self.gelu(self.linear_text(text_tensor))
+            image_tensor_embed = self.relu(self.linear_image(image_tensor))
+            text_tensor_embed = self.relu(self.linear_text(text_tensor))
             if self.args.dec_mode == "STC":  # apply self-attention
                 attention_input = torch.cat([image_tensor_embed.unsqueeze(0), text_tensor_embed.unsqueeze(0)])
                 attn_output, _ = self.attention(attention_input, attention_input, attention_input)
