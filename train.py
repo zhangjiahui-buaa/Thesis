@@ -14,6 +14,17 @@ from torchmetrics import AUROC
 # TODO: re-construct the code structure
 def parse_args():
     import argparse
+
+    def str2bool(v):
+        if isinstance(v, bool):
+            return v
+        if v.lower() in ('yes', 'true', 'True', 't', 'y', '1'):
+            return True
+        elif v.lower() in ('no', 'false', 'False', 'f', 'n', '0'):
+            return False
+        else:
+            raise argparse.ArgumentTypeError('Boolean value expected.')
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-task', '--task', help='text, image or multi', type=str, default="multi")
     parser.add_argument('-multi_type', '--multi_type', help='if multi, encode image and text separately or together?',
@@ -21,7 +32,7 @@ def parse_args():
     parser.add_argument('-dataset', '--dataset', help='mvsa or hateful', type=str, default="hateful")
     parser.add_argument('-label_num', '--label_num', help='number of label', type=int, default=2)
     parser.add_argument('-image_enc', '--image_enc', help='cnn, tranformer or vit', type=str, default="cnn")
-    parser.add_argument('-image_enc_pre_trained', '--image_enc_pre_trained', help='true or false', type=bool,
+    parser.add_argument('-image_enc_pre_trained', '--image_enc_pre_trained', help='true or false', type=str2bool,
                         default=True)
     parser.add_argument('-text_enc', '--text_enc', help='lstm or bert', type=str, default="bert")
     parser.add_argument('-mixed_enc', '--mixed_enc', help='mmbt or unit', type=str, default="mmbt")
@@ -66,8 +77,12 @@ def get_train_and_dev_loader(args, transform):
         raise NotImplementedError("Dataset {} has not been implemented".format(args.dataset))
 
 
-def infer(model: nn.Module, test_loader, args, logger: logging.Logger):  # infer on test set
+def infer(models: List[nn.Module], test_loader, args, logger: logging.Logger):  # infer on test set
     model.eval()
+    pass
+
+
+def load_and_evaluate():  # load model(s) checkpoints and evaluate on dev/test set
     pass
 
 
