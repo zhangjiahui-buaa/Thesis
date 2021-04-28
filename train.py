@@ -95,9 +95,10 @@ def evaluate(model: nn.Module, dev_loader, args, logger: logging.Logger):
     total = 0
     total_loss = 0
     correct = 0
-    all_prob = torch.tensor([[0, 0]]).to(args.device)
+    all_prob = torch.tensor([[0, 0]]).to(args.device) if args.label_num == 2 else torch.tensor([[0, 0, 0]]).to(
+        args.device)
     all_label = torch.tensor([0]).to(args.device)
-    auroc = AUROC(num_classes=2, pos_label=1)
+    auroc = AUROC(num_classes=args.label_num, pos_label=1 if args.label_num == 2 else None)
     label_dict, pred_dict, prob_dict = {}, {}, {}
     with torch.no_grad():
         for batch in dev_loader:
@@ -111,7 +112,9 @@ def evaluate(model: nn.Module, dev_loader, args, logger: logging.Logger):
             else:
                 label = batch['text_label']
             for idx, item in enumerate(prob):
-                prob_dict[batch['input_id'][idx].cpu().item()] = [item[0].cpu().item(), item[1].cpu().item()]
+                prob_dict[batch['input_id'][idx].cpu().item()] = [item[0].cpu().item(),
+                                                                  item[1].cpu().item()] if args.label_num == 2 else [
+                    item[0].cpu().item(), item[1].cpu().item(), item[2].cpu().item()]
                 pred_dict[batch['input_id'][idx].cpu().item()] = pred[idx].cpu().item()
                 label_dict[batch['input_id'][idx].cpu().item()] = label[idx].cpu().item()
             all_label = torch.cat([all_label, label])
@@ -223,7 +226,7 @@ def main():
     cur_time = int(time.time())
     args.save_dir = os.path.join("output",
                                  "{}_{}_{}_{}_{}_{}".format(str(cur_time), args.task, args.multi_type, args.image_enc,
-                                                         args.text_enc, args.dec_mode))
+                                                            args.text_enc, args.dec_mode))
     if not os.path.exists(args.save_dir):
         os.mkdir(args.save_dir)
 
