@@ -6,3 +6,4 @@ pillow~=7.2.0
 jsonlines~=2.0.0
 tqdm~=4.48.0
 opencv-python~=4.5.1.48
+torchmetrics

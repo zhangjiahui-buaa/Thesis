@@ -41,8 +41,8 @@
 
 |          | Resnet52 | Vanilla Vit | Vit  | Vanilla Swint | Swint | Vanilla TNT | TNT  | Vanilla PiT | PiT  |
 | -------- | -------- | ----------- | ---- | ------------- | ----- | ----------- | ---- | ----------- | ---- |
-| Accuracy | 68.00    |             |      |               |       |             |      |             |      |
-| AUROC    | 78.67    |             |      |               |       |             |      |             |      |
+| Accuracy | 67.50    |             |      |               |       |             |      |             |      |
+| AUROC    | 78.89    |             |      |               |       |             |      |             |      |
 
 #### Hateful Meme
 
