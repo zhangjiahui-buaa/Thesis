@@ -79,7 +79,8 @@ class MVSA_Dataset(Dataset):
 
     def __getitem__(self, index: int) -> Dict:
         result = copy.deepcopy(self.examples[index])
-        result['input_image'] = self.transforms(result['original_image']).to(self.device)
+        Image_PIL = Image.fromarray(self.examples[index]['original_image_np'])
+        result['input_image'] = self.transforms(Image_PIL).to(self.device)
         return result
 
     def __len__(self) -> int:
@@ -103,14 +104,14 @@ class MVSA_Dataset(Dataset):
         return list(sorted_examples)
 
     def encode_example(self, example: MVSA_Example) -> Dict:
-        original_image, tokens = example.image, example.tokens
+        original_image_np, tokens = example.image_np, example.tokens
 
         input_tokens = [self.tokenizer.cls_token] + tokens + [self.tokenizer.sep_token]
         input_tokens_ids = self.tokenizer.convert_tokens_to_ids(input_tokens)
         return {
             'input_token_ids': torch.tensor(input_tokens_ids, dtype=torch.long, device=self.device),
             'input_tokens': input_tokens,
-            'original_image': original_image,
+            'original_image_np': original_image_np,
             'input_image': None,
             'combined_label': torch.tensor([example.combined_label], dtype=torch.long, device=self.device),
             'text_label': torch.tensor([example.text_label], dtype=torch.long, device=self.device),

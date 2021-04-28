@@ -10,14 +10,12 @@ from typing import List, DefaultDict
 class MVSA_Example:
     def __init__(self, ex_id: int,
                  text: str,
-                 image: PIL.Image.Image,
                  image_np: np.ndarray,
                  text_label: int,
                  image_label: int):
         self.id = ex_id
         self.text = text
         self.tokens = self.process_text(self.text)
-        self.image = image
         self.image_np = image_np
         self.text_label = text_label
         self.image_label = image_label
@@ -33,13 +31,13 @@ class MVSA_Example:
                 return Positive
             else:
                 print(ex_id)
-                return None  # TODO: label it manually
+                return Positive  # TODO: label it manually
         elif text_label == Negative:
             if not image_label == Positive:
                 return Negative
             else:
                 print(ex_id)
-                return None  # TODO: label it manually
+                return Negative  # TODO: label it manually
         else:
             return image_label
         raise NotImplementedError()
@@ -98,7 +96,7 @@ class _MVSA_Dataset:
 
         image_np = np.array(image)
         text_label, image_label = convert_raw_label[raw_text_label], convert_raw_label[raw_image_label]
-        example = MVSA_Example(_id, text, image, image_np, text_label, image_label)
+        example = MVSA_Example(_id, text, image_np, text_label, image_label)
         return example
 
     def split_train_and_dev(self, examples):
