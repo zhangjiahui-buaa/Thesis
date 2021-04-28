@@ -35,6 +35,17 @@
 
 ### Result
 
+#### MVSA
+
+1. Unimodal(Image)
+
+|          | Resnet52 | Vanilla Vit | Vit  | Vanilla Swint | Swint | Vanilla TNT | TNT  | Vanilla PiT | PiT  |
+| -------- | -------- | ----------- | ---- | ------------- | ----- | ----------- | ---- | ----------- | ---- |
+| Accuracy | 68.00    |             |      |               |       |             |      |             |      |
+| AUROC    | 78.67    |             |      |               |       |             |      |             |      |
+
+#### Hateful Meme
+
 1. Separate(DC)
 
 |          | Resnet52 | Vanilla Vit | Vit  | Vanilla Swint | Swint | Vanilla TNT | TNT  | Vanilla PiT | PiT  |
