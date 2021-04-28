@@ -109,6 +109,7 @@ class MVSA_Dataset(Dataset):
         input_tokens = [self.tokenizer.cls_token] + tokens + [self.tokenizer.sep_token]
         input_tokens_ids = self.tokenizer.convert_tokens_to_ids(input_tokens)
         return {
+            'input_id': torch.tensor(example.id, dtype=torch.long, device=self.device),
             'input_token_ids': torch.tensor(input_tokens_ids, dtype=torch.long, device=self.device),
             'input_tokens': input_tokens,
             'original_image_np': original_image_np,
