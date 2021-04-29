@@ -22,7 +22,7 @@ POOLING_BREAKDOWN = {1: (1, 1), 2: (2, 1), 3: (3, 1), 4: (2, 2), 5: (5, 1), 6: (
 class CNN_Image_Encoder(nn.Module):
     def __init__(self, args):
         super(CNN_Image_Encoder, self).__init__()
-        self.cnn = timm.create_model('resnet50', pretrained=args.image_enc_pre_trained, num_classes=0)
+        self.cnn = timm.create_model('resnet152', pretrained=args.image_enc_pre_trained, num_classes=0)
         self.transform = torchvision.transforms.Compose(
             [torchvision.transforms.Resize(256),
              torchvision.transforms.CenterCrop(224),
