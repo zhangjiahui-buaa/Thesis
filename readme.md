@@ -39,7 +39,7 @@
 
 1. Unimodal(Image)
 
-|          | Vanilla Resnet52 | Resnet52 | Vanilla Vit | Vit   | Vanilla Swint | Swint | Vanilla TNT | TNT   | Vanilla PiT | PiT   |
+|          | Vanilla Resnet50 | Resnet50 | Vanilla Vit | Vit   | Vanilla Swint | Swint | Vanilla TNT | TNT   | Vanilla PiT | PiT   |
 | -------- | ---------------- | -------- | ----------- | ----- | ------------- | ----- | ----------- | ----- | ----------- | ----- |
 | Accuracy |                  | 67.50    |             | 66,75 |               | 67.75 |             | 66.75 |             | 66.00 |
 | AUROC    |                  | 78.89    |             | 81.19 |               | 81.79 |             | 78.94 |             | 80.42 |
@@ -48,7 +48,7 @@
 
 1. Separate(DC)
 
-|          | Resnet52 | Vanilla Vit | Vit  | Vanilla Swint | Swint | Vanilla TNT | TNT  | Vanilla PiT | PiT  |
+|          | Resnet50 | Vanilla Vit | Vit  | Vanilla Swint | Swint | Vanilla TNT | TNT  | Vanilla PiT | PiT  |
 | -------- | -------- | ----------- | ---- | ------------- | ----- | ----------- | ---- | ----------- | ---- |
 | Accuracy | 59.8     | 57.4        | 61.2 | 56.60         | 60.8  | 55.40       | 60.4 | 58.00       |      |
 | AUROC    |          |             |      | 62.86         |       | 62.82       |      | 63.28       |      |
