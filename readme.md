@@ -39,10 +39,10 @@
 
 1. Unimodal(Image)
 
-|          | Resnet52 | Vanilla Vit | Vit  | Vanilla Swint | Swint | Vanilla TNT | TNT  | Vanilla PiT | PiT  |
-| -------- | -------- | ----------- | ---- | ------------- | ----- | ----------- | ---- | ----------- | ---- |
-| Accuracy | 67.50    |             |      |               |       |             |      |             |      |
-| AUROC    | 78.89    |             |      |               |       |             |      |             |      |
+|          | Vanilla Resnet52 | Resnet52 | Vanilla Vit | Vit   | Vanilla Swint | Swint | Vanilla TNT | TNT   | Vanilla PiT | PiT   |
+| -------- | ---------------- | -------- | ----------- | ----- | ------------- | ----- | ----------- | ----- | ----------- | ----- |
+| Accuracy |                  | 67.50    |             | 66,75 |               | 67.75 |             | 66.75 |             | 66.00 |
+| AUROC    |                  | 78.89    |             | 81.19 |               | 81.79 |             | 78.94 |             | 80.42 |
 
 #### Hateful Meme
 
@@ -57,10 +57,10 @@
 3. Separate(STC)
 4. Together(MMBT Style)
 
-|          | Resnet152 | Vit   | Swint | TNT   | PiT  |
-| -------- | --------- | ----- | ----- | ----- | ---- |
-| Accuracy | 60.60     | 62.40 | 61.40 | 63.80 |      |
-| AUROC    | 65.57     | 68.79 | 67.40 | 66.78 |      |
+|          | Resnet152 | Vit   | Swint | TNT   | PiT   |
+| -------- | --------- | ----- | ----- | ----- | ----- |
+| Accuracy | 60.60     | 62.40 | 61.40 | 63.80 | 62.60 |
+| AUROC    | 65.57     | 68.79 | 67.40 | 66.78 | 66.92 |
 
 
 ### hateful memes unzip password: EWryfbZyNviilcDF
