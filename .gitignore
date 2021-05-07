@@ -7,3 +7,6 @@ preprocess/__pycache__/
 save/
 *.pyc
 imagenet_classes.txt
+prob*.json
+pred*.json
+label.json
