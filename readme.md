@@ -19,19 +19,19 @@
 ~~~
 
 ### TODO
-- replace the cnn encoder in MMBT with Vision transformer
+- replace the cnn encoder in MMBT with Vision transformer(Done)
 - fusion technique *important*
   - Concatenate directly(DC)
   - Pass through a linear layer, then concatenate(LTC)
   - Pass through a linear and a self-attention layer, then concatenate(STC)
-- for each vit, compare the pretrained version against the vanilla version
-- ensemble model
-- add visual bert *important!*
-- use feature extracted by faster-rcnn
+- for each vit, compare the pretrained version against the vanilla version(Done)
+- ensemble model(Done)
+- use feature extracted by faster-rcnn(Use the figure provided by Facebook)
 - ablation study
   - 1
   - 2
-- error analysis
+- error analysis(complete in this weekend)
+- deploy model(use streamlit, complete in this weekend)
 
 ### Result
 

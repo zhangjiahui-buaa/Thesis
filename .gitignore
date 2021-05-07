@@ -10,3 +10,4 @@ imagenet_classes.txt
 prob*.json
 pred*.json
 label.json
+error.json
