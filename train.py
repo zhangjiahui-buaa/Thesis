@@ -10,6 +10,8 @@ import time
 import os
 from torchmetrics import AUROC
 import json
+from PIL import Image
+import streamlit as st
 
 
 # TODO: re-construct the code structure
@@ -28,17 +30,19 @@ def parse_args():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-task', '--task', help='text, image or multi', type=str, default="multi")
+    parser.add_argument('-mode', '--mode', help='train, test or infer', type=str, default="infer")
     parser.add_argument('-multi_type', '--multi_type', help='if multi, encode image and text separately or together?',
                         type=str, default="separate")
     parser.add_argument('-dataset', '--dataset', help='mvsa or hateful', type=str, default="hateful")
     parser.add_argument('-label_num', '--label_num', help='number of label', type=int, default=2)
-    parser.add_argument('-image_enc', '--image_enc', help='cnn, tranformer or vit', type=str, default="cnn")
+    parser.add_argument('-image_enc', '--image_enc', help='cnn, tranformer or vit', type=str, default="vit")
     parser.add_argument('-image_enc_pre_trained', '--image_enc_pre_trained', help='true or false', type=str2bool,
                         default=True)
     parser.add_argument('-text_enc', '--text_enc', help='lstm or bert', type=str, default="bert")
     parser.add_argument('-mixed_enc', '--mixed_enc', help='mmbt or unit', type=str, default="mmbt")
     parser.add_argument('-dec_mode', '--dec_mode', help='decoder mode', type=str, default="DC")
-    parser.add_argument('-model_checkpoint', '--model_checkpoint', help='path to model', type=str, default=None)
+    parser.add_argument('-model_checkpoint', '--model_checkpoint', help='path to model', type=str,
+                        default="output/model.pt")
     parser.add_argument('-bert_version', '--bert_version', help='bert version', type=str, default="bert-base-uncased")
     parser.add_argument('-batch_size', '--batch_size', help='batch size', type=int, default="32")
     parser.add_argument('-weight_decay', '--weight_decay', help='weight decay', type=float, default=0.01)
@@ -80,10 +84,51 @@ def get_train_and_dev_loader(args, transform):
         raise NotImplementedError("Dataset {} has not been implemented".format(args.dataset))
 
 
-def infer(models: List[nn.Module], test_loader, args, logger: logging.Logger):  # infer on test set
-    for model in models:
-        model.eval()
-    pass
+def infer_offline(model: nn.Module, image_path, text, image_transform, args,
+                  logger: logging.Logger):  # infer on new input
+    model.eval()
+    logger.info("Inference offline...")
+    image = Image.open(image_path).convert('RGB')
+    tokenizer = BertTokenizer.from_pretrained(args.bert_version)
+
+    tokens = text.lower().strip().split()
+    tokens = [tokenizer.cls_token] + tokens + [tokenizer.sep_token]
+    input_token_ids = tokenizer.convert_tokens_to_ids(tokens)
+
+    input_token_ids = torch.tensor(input_token_ids, dtype=torch.long, device=args.device).unsqueeze(0)
+    input_image = image_transform(image).unsqueeze(0)
+    inputs = {"input_image": input_image,
+              "input_token_ids": input_token_ids}
+    with torch.no_grad():
+        pred, prob = model.predict(**inputs)
+
+    return pred, prob.numpy()
+
+
+def infer_online(model: nn.Module, image_transform, args, logger: logging.Logger):
+    model.eval()
+    logger.info("Inference online...")
+    tokenizer = BertTokenizer.from_pretrained(args.bert_version)
+
+    file_up = st.file_uploader("Upload an image", type="png")
+    image = Image.open(file_up)
+    st.image(image, caption='Uploaded Image.', use_column_width=True)
+    text = st.text_input("input a sentence")
+
+    tokens = text.lower().strip().split()
+    tokens = [tokenizer.cls_token] + tokens + [tokenizer.sep_token]
+    input_token_ids = tokenizer.convert_tokens_to_ids(tokens)
+
+    input_token_ids = torch.tensor(input_token_ids, dtype=torch.long, device=args.device).unsqueeze(0)
+    input_image = image_transform(image).unsqueeze(0)
+
+    inputs = {"input_image": input_image,
+              "input_token_ids": input_token_ids}
+    with torch.no_grad():
+        pred, prob = model.predict(**inputs)
+
+    st.text("Result: {}".format("Hateful" if pred[0].item() == 1 else "Non-Hateful"))
+    st.text("Corresponding Probility: Hateful({}), Non-Hatefule({})".format(prob[0][1].item(), prob[0][0].item()))
 
 
 def load_and_evaluate():  # load model(s) checkpoints and evaluate on dev/test set
@@ -238,13 +283,13 @@ def main():
 
     logger.info("Loading model, optimizers and image tranformation")
     model, transform, optimizers = get_model_transform_and_optimizer(args=args, logger=logger)
+    if args.mode == "train":
+        logger.info("Loading data")
+        data_loaders = get_train_and_dev_loader(args=args, transform=transform)
 
-    logger.info("Loading data")
-    data_loaders = get_train_and_dev_loader(args=args, transform=transform)
-
-    train(model, data_loaders[0], data_loaders[1], optimizers, args, logger)
-
-    # infer(model, data_loader[2], args, logger)
+        train(model, data_loaders[0], data_loaders[1], optimizers, args, logger)
+    elif args.mode == "infer":
+        infer_online(model, transform, args, logger)
 
 
 if __name__ == '__main__':

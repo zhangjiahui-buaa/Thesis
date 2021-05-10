@@ -61,7 +61,8 @@ class MultiModal_Model(nn.Module):
     def predict(self, **inputs):
         logits = self.forward(**inputs)
         pred = torch.argmax(logits, dim=-1)
-        return pred
+        prob = F.softmax(logits)
+        return pred, prob
 
 
 class Image_Model(nn.Module):

@@ -31,7 +31,7 @@
   - 1
   - 2
 - error analysis(complete in this weekend)
-- deploy model(use streamlit, complete in this weekend)
+- deploy model(use streamlit, complete in this weekend, Done)
 
 ### Result
 
