@@ -73,5 +73,11 @@
 | Accuracy | 60.60     | 62.40 | 61.40 | 63.80 | 62.60 |
 | AUROC    | 65.57     | 68.79 | 67.40 | 66.78 | 66.92 |
 
+### Error Analysis
+
+100 error examples on dev set
+
+- 
+
 ### hateful memes unzip password: EWryfbZyNviilcDF
 
