@@ -12,14 +12,63 @@
 
 ## 相关原理和技术（6～12）
 
+这一部分主要介绍一些处理分类任务的方法，分别从图像分类，文本分类以及多模态分类三个任务来详细阐述，具体到每个任务都有多种常见的方法，下面一一说明。
+
 - 图像分类任务
+  
+  给定一张图片$P$，试图找到一个模型$f$，在某种损失函数$L$下，其误差$L(f(P),y)$最小，其中$y$是图片$P$的标签。常用的方法主要是卷机神经网络。但在最近一段时间，以ViT为代表的一系列视觉Transformer被研究者提出，并且在视觉分类任务上取得了不俗的效果，下面进行详细介绍
+  
   - 卷积神经网络
+  
+    和传统的全连接神经网络一样，卷积神经网络由输入层，隐藏层，输出层。其中隐藏层通常包含多个卷积层，每个卷积层涉及一系列卷积，池化，全连接，归一化操作。具体来说，卷积指的是卷积核与输入特征的点积操作，且通常为Frobenius内积，激活函数通常为RELU或者Sigmoid。当卷积核沿着该层的输入矩阵滑动时，卷积运算将生成一个特征图，该特征图便是下一层的输入。 接下来是其他层，例如池化层，全连接层和归一化层。下图是两种卷积神经网络的结构，LeNet早在20世纪90年代就已被提出，用于解决数字识别问题。而AlexNet的出现，大幅提升了Imagenet图像识别的准确率，也是近年来深度学习热潮的先驱。现如今，残差神经网络Resnet已是卷积神经网络的代表。
+  
+    ![CNN](Image/CNN.svg)
+  
   - 视觉transformer
+  
+    鉴于Transformer在自然语言处理领域中的统治地位，近几个月，研究人员探索Transformer架构在图像中的应用。ViT(Vision Transformer)，完全抛弃卷积操作，而遵循Transformer架构，在图像识别领域取得了不俗的效果。其模型结构如下。
+  
+    ![ViT](Image/ViT.png)
+  
+    对于一张图片$P$，首先将其切割为若干个图片块（Patch），每个图片块的大小固定，且切割顺序固定。将每个Patch输入给一个线性层，将它们映射成一维张量。在该张量前面添上一个特殊占位符【class】，用于分类。再加上位置编码后输入给一个Transformer编码器。将【class】占位符的隐变量通过一个线性层用于分类。
+  
+    ViT使用的Transformer编码器与传统的Transformer类似，输入张量首先经过Layer Normalization，在输入给Multi-Head Attention层做自注意力点积，还配备有残差连接。最后再通过一个Layer Normalization层和一个全连接层。
+  
+    随着ViT的出现，越来越多的研究人员开始探索视觉Transformer，也因此出现了很多变种，包括Swin Transformer（SwinT），Transformer in Transfomer（TNT），Pooling-based Vision Transformer（PiT），本文也重点研究这几种具有代表性的视觉Transformer。
+  
   - 预训练视觉模型
+  
+    上面一部分介绍了视觉Transformer的结构，这里介绍其预训练过程以及实验结果。
+  
+    Vision Transformer的预训练过程与传统预训练有差别。传统的预训练是无监督学习，拿BERT举例，只需要大量的无标注文本，即可进行预训练（会在下文详述）。而Vision Transformer进行的是有监督预训练。具体来说就是预测图像所属类别，并与真实值进行比较，计算损失函数，梯度回传，更新参数。迁移到下游任务上也仅仅是更换数据集。因此这也是视觉Transformer的令人诟病之处。
+  
+    但这不影响其优越的实验结果，拿Swin Transformer举例，无论是在图像分类任务上，还是在目标检测任务上，都取得了优于卷积神经网络的效果。下表列举了一些主要的结果，可以看到，Swin Transformer的效果超过了所有卷积神经网络。
+  
 - 文本分类任务
 
+  给定一句文本$T$，试图找到一个模型$f$，在某种损失函数$L$下，其误差$L(f(T),y)$最小，其中$y$是文本$T$的标签。最初用于解决文本分类任务的是循环神经网络，代表模型有LSTM，GRU。其主要思想就是将文本逐词输入给模型，一个时间点上模型只处理一个单词，即串行处理输入。但自从Transformer提出后，循环神经网络几乎已被遗忘。Transformer的主要思想是自注意力机制（Self-Attention）。一个很大的优点就是可以并行处理文本输入，即整个句子同时输入给模型。大大减少了时间开销。Transformer的效果也远远超出了LSTM/GRU。下面对其模型结构以及预训练目标进行详细阐述。
+  
   - self-attention
+  
+    ![Transformer](Image/Transformer.png)
+  
+    Self-attention的主要组成部分是Multi-head Attention，其又是有多个Scaled dot-product Attention构成。该点积操作可用如下公式表示
+    $$
+    Attention(Q,K,V) = softmax(\frac{QK^T}{\sqrt{n}})V
+    $$
+    
+  
+    其中$Q,K,V$分别代表Query，Key，Value。三者都是由同一个输入张量，经过线性变换得倒，这也是称其为“自”注意力机制的原因。$n$代表张量的维度。由于张量维度较高，因此在进行点积操作时，得到的结果数值可能会很大，因此要除以$\sqrt{n}$进行缩小。所谓Multi-Head就是指有多个自注意力头，再将每个头的输入进行拼接以得到最后的输出结果。具体公式如下
+    $$
+    MultiHead(Q,K,V) = [head_1,head_2,...,head_h]W^O\\
+    where\ head_i = Attention(QW_i^Q,KW_i^K,VW_i^V)
+    $$
+    
+  
   - 预训练语言模型
+  
+    上述内容介绍了Self-attention的结构，但使Transformer真正强大起来的是预训练技术。最近火热的BERT以及各种变种，包括Roberta，Deberta，T5，中心思想都是通过预训练来提升模型的表示能力。因此BERT的真正作用就是用于编码文本数据，为下游分类器提供文本特征。下面会具体介绍预训练目标
+  
 - 多模态分类任务
 
   - 多模态transformer
@@ -112,7 +161,7 @@ $$
 
 - 不同模态输入单独编码
 
-  ![avatar](figure1.pdf)
+  ![Seperate](Image/figure1.pdf)
 
   该模型的具体结构见图，左半部分代表图像编码器，这里的Image_Encoder可以卷机神经网络，也可以是视觉Transformer；而Text_Encoder是BERT。对于具体的编码方式在前面两个部分已经具体介绍过了，这里只从特征融合这一步开始具体介绍。
 
@@ -129,7 +178,7 @@ $$
 
 - 不同模态输入统一编码，Multimodal BERT(MMBT)
 
-  ![avatar](figure2.pdf)
+  ![Together](Image/figure2.pdf)
 
   该模型的具体结构见图，编码流程可以分为两部分
 
