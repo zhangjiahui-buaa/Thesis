@@ -11,5 +11,3 @@ prob*.json
 pred*.json
 label.json
 error.json
-figure1.pdf
-figure2.pdf
