@@ -26,6 +26,30 @@
 
 **关键词**：多模态情感分析，视觉Transformer，多模态特征融合
 
+## Abstract
+
+Multi-modal sentiment analysis is a new task of traditional text or image-based sentiment analysis. It goes beyond the scope of traditional single-modal sentiment analysis and introduces multi-modal data for sentiment analysis. It can include different combinations of two modalities, such as text and image, or three modalities, such as text, video, and audio. With the vigorous development of social media in recent years, a large number of different forms of social media data such as text and images have emerged. As a result, traditional text or image-based sentiment analysis has evolved into more complex multi-modal sentiment analysis. Similar to traditional sentiment analysis, one of the most basic tasks in multi-modal sentiment analysis is sentiment classification, which divides different sentiments into positive, negative or neutral categories. There are two main problems to solve multi-modal sentiment analysis, 1) how to encode text and image features, and 2) how to fuse text and image features.
+
+The current popular vision Transformer has achieved significant results beyond convolutional neural networks in multiple computer vision tasks. Inspired by this, this article utilizes the vision Transformer to solve the task of image sentiment analysis. On this basis, the task of multi-modal sentiment analysis is solved. This paper tries to achieve a higher accuracy rate and a more unified model structure.
+
+The main work of this paper is as follows
+
+- Image sentiment classification based on vision Transformer
+
+   Use several representative vision Transformers to solve traditional image sentiment analysis, and compare with traditional methods based on convolutional neural networks. Try to lay the foundation for multi-modal sentiment analysis based on vision Transformer.
+
+- Multi-modal coding model based on Transformer structure
+
+   Based on the characteristics of the multi-modal sentiment analysis data set, the existing vision Transformer and BERT are combined to solve related tasks. Also,  compare it with the traditional method based on convolutional neural network and BERT.
+
+- Multi-modal feature fusion
+
+   According to the feature vectors of different modalities, different fusion methods are selected to perform feature fusion. Compare the effects of different feature fusion methods on the accuracy of the model, and choose the best feature fusion method.
+
+- Model deployment and display
+
+   Deploy and visualize the above models.
+
 ## 绪论（1～5）
 
 ### 研究背景及研究意义
