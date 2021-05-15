@@ -2,9 +2,9 @@
 
 ## 摘要
 
-多模态情感分析是传统的基于文本或者图像的情感分析的一个新任务，它超出了传统单模态情感分析范围，引入了多种模态的数据用于进行情感分析。它可以包括两种模态的不同组合，例如文本和图像，也可以包含三种模态，例如文本，视频，音频。随着近年来社交媒体的蓬勃发展，出现了文本和图像等不同形式的大量社交媒体数据，由此传统的基于文本或者图像的情感分析已演变为更复杂的多模式情感分析。与传统的情感分析类似，多模式情感分析中最基本的任务之一就是情感分类，它将不同的情感分为积极，消极或中立的类别。要解决多模态情感分析主要有两个问题，1）如何编码文本，图像的特征，2）如何融合文本特征，图像特征。
+多模态情感分析https://arxiv.org/abs/1803.07427是传统的基于文本或者图像的情感分析的一个新任务，它超出了传统单模态情感分析https://arxiv.org/abs/2006.03541范围，引入了多种模态的数据用于进行情感分析。它可以包括两种模态的不同组合，例如文本和图像，也可以包含三种模态，例如文本，视频，音频。随着近年来社交媒体的蓬勃发展，出现了文本和图像等不同形式的大量社交媒体数据，由此传统的基于文本或者图像的情感分析已演变为更复杂的多模式情感分析。与传统的情感分析类似，多模式情感分析中最基本的任务之一就是情感分类，它将不同的情感分为积极，消极或中立的类别。要解决多模态情感分析主要有两个问题，1）如何编码文本，图像的特征，2）如何融合文本特征，图像特征。
 
-当下大火的视觉Transformer在多个计算机视觉任务中都取得了超出卷积神经网络的效果。受这一点启发，本文采用视觉Transformer来解决图像情感分析任务。在此基础上，解决多模态情感分析任务。试图达到更高的准确率以及更统一的模型结构。
+当下大火的视觉Transformerhttps://arxiv.org/abs/2006.03677在多个计算机视觉任务中都取得了超出卷积神经网络的效果。受这一点启发，本文采用视觉Transformer来解决图像情感分析任务。在此基础上，解决多模态情感分析任务。试图达到更高的准确率以及更统一的模型结构。
 
 本文的主要工作如下几个方面
 
@@ -14,7 +14,7 @@
 
 - 基于Transformer结构的多模态编码模型
 
-  基于多模态情感分析数据集的特点，对已有的视觉Transformer和BERT进行组合，以解决相关任务。并与传统基于卷积神经网络和BERT的方法进行比较。
+  基于多模态情感分析数据集的特点，对已有的视觉Transformer和BERThttps://arxiv.org/abs/1810.04805进行组合，以解决相关任务。并与传统基于卷积神经网络和BERT的方法进行比较。
 
 - 多模态特征融合
 
@@ -70,7 +70,7 @@ Keyword: Multimodal Sentiment Analysis， Vision Transformer，Multimodal Featur
 
 - 视觉Transformer
 
-  Transformer架构是谷歌在2017年提出的，并且在各大自然语言处理任务当中都取得了领先的效果。特别是在此架构上进行预训练后得到的模型，例如BERT，Roberta，T5。其最大的特点就是抛弃了循环神经网络，而用自注意力机制进行替代。使得模型可以并行的处理文本。鉴于Transformer架构优越的性能，以及很容易就能迁移到下游任务上并且取得优越的效果，研究人员开始尝试用Transformer架构替代卷积神经网络来解决计算机视觉当中的一些任务，并在近期取得了一些不错的成果。例如目标检测领域当中的DETR，图像分类领域当中的vision transformer
+  Transformerhttps://arxiv.org/abs/1706.03762架构是谷歌在2017年提出的，并且在各大自然语言处理任务当中都取得了领先的效果。特别是在此架构上进行预训练后得到的模型，例如BERT，Robertahttps://arxiv.org/abs/1907.11692，T5https://arxiv.org/abs/1910.10683。其最大的特点就是抛弃了循环神经网络，而用自注意力机制进行替代。使得模型可以并行的处理文本。鉴于Transformer架构优越的性能，以及很容易就能迁移到下游任务上并且取得优越的效果，研究人员开始尝试用Transformer架构替代卷积神经网络来解决计算机视觉当中的一些任务，并在近期取得了一些不错的成果。例如目标检测领域当中的DETRhttps://arxiv.org/abs/2005.12872，图像分类领域当中的vision transformerhttps://arxiv.org/abs/2010.11929
 
 本文的主要致力于研究利用视觉Transformer解决多模态情感分析问题，试图达到超越卷积神经网络的效果。
 
@@ -84,11 +84,11 @@ Keyword: Multimodal Sentiment Analysis， Vision Transformer，Multimodal Featur
 
 - 对话式
 
-  这类数据集中的样本往往都由多个句子和多张图片组成。数据来源通常为电视剧中人物对话。比较经典的数据集有MEISD，MELD ，IEMOCAP，SEMAINE。对话式的样本往往需要考虑上下文，结合语境来给出情感分类，例如下图中的例。因此往往需要更复杂的模型，更巧妙的算法，这不是本文的重点，因此不再赘述
+  这类数据集中的样本往往都由多个句子和多张图片组成。数据来源通常为电视剧中人物对话。比较经典的数据集有MEISDhttps://www.aclweb.org/anthology/2020.coling-main.393.pdf，MELDhttps://arxiv.org/abs/1810.02508 ，IEMOCAP，SEMAINEhttps://www.researchgate.net/publication/224248863_The_SEMAINE_Database_Annotated_Multimodal_Records_of_Emotionally_Colored_Conversations_between_a_Person_and_a_Limited_Agent。对话式的样本往往需要考虑上下文，结合语境来给出情感分类，例如下图中的例。因此往往需要更复杂的模型，更巧妙的算法，这不是本文的重点，因此不再赘述
 
 - 非对话式
 
-  这类数据集中的样本都有一句话，配上一张图片，或者一段视频。数据来源通常为社交媒体平台，例如Twiter，Facebook，比较经典的数据集有CMU-MOSI，CMU-MOSEI，CMU-MOSEAS，UR-FUNNY，CH-SIMS，MVSA-SINGLE。由于没有上下文，因此只需要考虑不同模态输入之间的关联就可给出情感分类，这正是本文关注的重点。
+  这类数据集中的样本都有一句话，配上一张图片，或者一段视频。数据来源通常为社交媒体平台，例如Twiter，Facebook，比较经典的数据集有CMU-MOSIhttps://arxiv.org/abs/1606.06259，CMU-MOSEIhttps://www.aclweb.org/anthology/P18-1208/，CMU-MOSEAShttps://www.aclweb.org/anthology/2020.emnlp-main.141/，UR-FUNNYhttps://www.aclweb.org/anthology/D19-1211/，CH-SIMShttps://www.aclweb.org/anthology/2020.acl-main.343/，MVSA-SINGLE。由于没有上下文，因此只需要考虑不同模态输入之间的关联就可给出情感分类，这正是本文关注的重点。
 
   值得关注的一类数据集是涉及讽刺检测，仇恨检测的数据集，例如Twitter反讽数据集，Hateful Meme数据集。这些数据集中的样本往往涉及了讽刺，仇恨言论。即图像与文本之间的联系是反直觉的，这也体现了多模态情感识别任务的复杂。
 
@@ -96,27 +96,27 @@ Keyword: Multimodal Sentiment Analysis， Vision Transformer，Multimodal Featur
 
 这一部分主要聚焦在非对话式数据集上的一些模型。对于对话式数据集不会涉及。
 
-- VistaNet
+- VistaNethttps://ojs.aaai.org//index.php/AAAI/article/view/3799
 
   该模型主要用于涉及文本和图片两种模态的情感分类任务。其中心思想为“图片并不独立于文字表达情感，而是作为辅助部分提示文本中的显著性内容”。
 
   如图1所示，VistaNet具有三层结构，分别是词编码层、句子编码层和分类层。词编码层对一个句子中的词语进行编码，再经过soft-attention得到句子的表示。句子编码层对上一层得到的句子表示进行编码，再通过视觉注意力机制（visual aspectattentino）得到文档表示。文档表示作为分类层的输入，输出分类结果。从结构上来看，VistaNet和Hierarchical Attention Network基本相似，都是用于文档级情感分类，都有三层结构，且前两层都是GRUEncoder+Attention的结构，二者的不同点在于VistaNet使用了视觉注意力机制。
 
-- HFM（HierarchicalFusion Model）
+- HFM（HierarchicalFusion Model）https://www.aclweb.org/anthology/2020.findings-emnlp.124.pdf
 
   该模型主要用于涉及文本和图片的讽刺检测任务。在文本和图像双模态的基础上，增加了图像的属性模态（Image attribute），由描述图像组成成分的若干词组成。如图3所示，图片包含了“Fork”、“Knife”、“Meat”等属性。作者认为图像属性能够将图像和文本的内容联系起来，具有“桥梁”的作用。
 
   根据功能将HFM划分为三个层次，编码层、融合层和分类层，其中融合层又可分为表示融合层和模态融合层。HFM在编码层首先对三种模态的信息进行编码，得到每种模态的原始特征向量(Raw vectors)，即每个模态的所有元素的向量表示集合。对原始特征向量进行平均或加权求和后得到每个模态的单一向量表示(Guidancevector)。原始特征向量和单一向量表示经过表示融合层后,得到融合了其他模态信息的每个模态的重组特征向量表示（Reconstructedfeature vector）。最后将三个模态的重组特征向量经过模态融合层处理，得到最后的融合向量（Fusedvector），作为分类层的输入。
 
-- TFN
+- TFNhttps://arxiv.org/abs/1707.07250
 
   该模型主要用于涉及文本，图像，语音三种模态的情感分类任务。Zadeh和他的团队[4]提出了一种基于张量外积（Outer product）的多模态融合方法，这也是TFN名字的来源。在编码阶段，TFN使用一个LSTM+2层全连接层的网络对文本模态的输入进行编码，分别使用一个3层的DNN网络对语音和视频模态的输入进行编码。在模态融合阶段，对三个模态编码后的输出向量作外积，得到包含单模态信息、双模态和三模态的融合信息的多模态表示向量，用于下一步的决策操作。
 
-- MARN
+- MARNhttps://arxiv.org/abs/1802.00923
 
   该模型主要用于涉及文本，图像，语音三种模态的情感分类任务。其基于一个假设：“模态间存在多种不同的信息交互”，这一假设在认知科学上得到了证实。MARN基于此提出使用多级注意力机制提取不同的模态交互信息。模型架构如图5所示。在编码阶段，作者在LSTM的基础上提出了“Long-shortTerm Hybrid Memory”，加入了对多模态表示的处理，同时将模态融合和编码进行了结合。由于在每个时刻都需要进行模态融合，要求三种模态的序列长度相等，因此需要在编码前进行模态对齐。
 
-- MFN（Memory Fusion Network）
+- MFN（Memory Fusion Network）https://arxiv.org/abs/1802.00927
 
   MARN考虑了注意力权重的多种可能分布，MFN则考虑了注意力处理的范围。MFN和MARN一样将模态融合与编码相结合，不同的是，在编码的过程中模态间是相互独立的，由于使用的是LSTM，并没有一个共享的混合向量加入计算，取而代之的，MFN使用“Delta-memoryattention”和“Multi-View Gated Memory”来同时捕捉时序上和模态间的交互。保存上一时刻的多模态交互信息。图6展示了MFN在t时刻的处理过程。
 
@@ -130,7 +130,7 @@ Keyword: Multimodal Sentiment Analysis， Vision Transformer，Multimodal Featur
 
 - 基于视觉Transformer的图像情感分类
 
-  现如今有关视觉Transformer的研究主要还是聚焦在图像识别上，即识别出图片中的物体类别，也就是图像浅层信息。至今还没有工作验证其在图像情感识别上的效果，即识别出图像中物体所透露的情感，也就是图像深层信息。这对于后面将要介绍的多模态情感是至关重要的，只有先验证了视觉Transformer在图像情感识别的能力，才能将其拓展到多模态情感识别当中。本文将会尝试多种视觉Transformer架构，包括ViT，SwinT，TnT，PiT。
+  现如今有关视觉Transformer的研究主要还是聚焦在图像识别上，即识别出图片中的物体类别，也就是图像浅层信息。至今还没有工作验证其在图像情感识别上的效果，即识别出图像中物体所透露的情感，也就是图像深层信息。这对于后面将要介绍的多模态情感是至关重要的，只有先验证了视觉Transformer在图像情感识别的能力，才能将其拓展到多模态情感识别当中。本文将会尝试多种视觉Transformer架构，包括ViT，SwinThttps://arxiv.org/abs/2103.14030，TnThttps://arxiv.org/abs/2103.00112，PiThttps://arxiv.org/abs/2103.16302。
 
 - 基于Transformer结构的多模态编码模型
 
@@ -178,7 +178,7 @@ Keyword: Multimodal Sentiment Analysis， Vision Transformer，Multimodal Featur
   
   - 卷积神经网络
   
-    和传统的全连接神经网络一样，卷积神经网络由输入层，隐藏层，输出层。其中隐藏层通常包含多个卷积层，每个卷积层涉及一系列卷积，池化，全连接，归一化操作。具体来说，卷积指的是卷积核与输入特征的点积操作，且通常为Frobenius内积，激活函数通常为RELU或者Sigmoid。当卷积核沿着该层的输入矩阵滑动时，卷积运算将生成一个特征图，该特征图便是下一层的输入。 接下来是其他层，例如池化层，全连接层和归一化层。下图是两种卷积神经网络的结构，LeNet早在20世纪90年代就已被提出，用于解决数字识别问题。而AlexNet的出现，大幅提升了Imagenet图像识别的准确率，也是近年来深度学习热潮的先驱。现如今，残差神经网络Resnet已是卷积神经网络的代表。
+    和传统的全连接神经网络一样，卷积神经网络由输入层，隐藏层，输出层。其中隐藏层通常包含多个卷积层，每个卷积层涉及一系列卷积，池化，全连接，归一化操作。具体来说，卷积指的是卷积核与输入特征的点积操作，且通常为Frobenius内积，激活函数通常为RELU或者Sigmoid。当卷积核沿着该层的输入矩阵滑动时，卷积运算将生成一个特征图，该特征图便是下一层的输入。 接下来是其他层，例如池化层，全连接层和归一化层。下图是两种卷积神经网络的结构，LeNethttp://yann.lecun.com/exdb/lenet/早在20世纪90年代就已被提出，用于解决数字识别问题。而AlexNethttps://papers.nips.cc/paper/2012/file/c399862d3b9d6b76c8436e924a68c45b-Paper.pdf的出现，大幅提升了Imagenethttps://ieeexplore.ieee.org/document/5206848图像识别的准确率，也是近年来深度学习热潮的先驱。现如今，残差神经网络Resnethttps://arxiv.org/abs/1512.03385已是卷积神经网络的代表。
   
     ![CNN](Image/CNN.svg)
   
@@ -204,7 +204,7 @@ Keyword: Multimodal Sentiment Analysis， Vision Transformer，Multimodal Featur
   
 - 文本分类任务
 
-  给定一句文本$T$，试图找到一个模型$f$，在某种损失函数$L$下，其误差$L(f(T),y)$最小，其中$y$是文本$T$的标签。最初用于解决文本分类任务的是循环神经网络，代表模型有LSTM，GRU。其主要思想就是将文本逐词输入给模型，一个时间点上模型只处理一个单词，即串行处理输入。但自从Transformer提出后，循环神经网络几乎已被遗忘。Transformer的主要思想是自注意力机制（Self-Attention）。一个很大的优点就是可以并行处理文本输入，即整个句子同时输入给模型。大大减少了时间开销。Transformer的效果也远远超出了LSTM/GRU。下面对其模型结构以及预训练目标进行详细阐述。
+  给定一句文本$T$，试图找到一个模型$f$，在某种损失函数$L$下，其误差$L(f(T),y)$最小，其中$y$是文本$T$的标签。最初用于解决文本分类任务的是循环神经网络，代表模型有LSTMhttps://www.bioinf.jku.at/publications/older/2604.pdf，GRUhttps://arxiv.org/abs/1412.3555。其主要思想就是将文本逐词输入给模型，一个时间点上模型只处理一个单词，即串行处理输入。但自从Transformer提出后，循环神经网络几乎已被遗忘。Transformer的主要思想是自注意力机制（Self-Attention）。一个很大的优点就是可以并行处理文本输入，即整个句子同时输入给模型。大大减少了时间开销。Transformer的效果也远远超出了LSTM/GRU。下面对其模型结构以及预训练目标进行详细阐述。
   
   - self-attention
   
@@ -248,11 +248,11 @@ Keyword: Multimodal Sentiment Analysis， Vision Transformer，Multimodal Featur
 
     对于图像输入$P$，设计一个编码器$f_P$；同样的，对于文本输入$T$，设计一个编码器$f_T$。将不同模态输入通过各自的编码器得到隐变量。再将不同模态的隐变量进行特征融合，得到全局特征。将其通过一个分类器，得到预测结果，与真实值比较，计算损失函数并更新参数。不同算法的区别主要在于特征融合的方式，具体来说主要分为两种方法
 
-    1）early-fusion：这种方法会先对不同模态的特征进行融合，再通过分类器进行分类
+    1）early-fusionhttps://arxiv.org/abs/2011.07191：这种方法会先对不同模态的特征进行融合，再通过分类器进行分类
 
-    2）late-fusion：这种方法会先对不同模态的特征进行分类，再对不同模态的分类结果进行分析得到最终分类结果。
+    2）late-fusionhttps://link.springer.com/article/10.1007/s11042-020-08836-3：这种方法会先对不同模态的特征进行分类，再对不同模态的分类结果进行分析得到最终分类结果。
 
-    图像的编码器通常使用卷积神经网络，例如Resnet，Mobilenet。文本的编码器通常使用BERT。本文要研究的主要是将图像编码器替换为视觉Transformer对于效果的提升，以及不同的特征融合方式对于模型准确率的影响。
+    图像的编码器通常使用卷积神经网络，例如Resnet，Mobilenethttps://arxiv.org/abs/1704.04861。文本的编码器通常使用BERT。本文要研究的主要是将图像编码器替换为视觉Transformer对于效果的提升，以及不同的特征融合方式对于模型准确率的影响。
 
   - 多模态transformer
 
@@ -389,9 +389,9 @@ $$
 
 ### 实现细节
 
-本文所有代码均使用python实现，涉及到模型流水线的代码使用Pytorch框架，涉及到模型具体结构的代码使用Huggingface和Timm开源仓库。其中Huggingface仓库包含了大量的预训练语言模型，包括BERT，Roberta，Deberta等，Timm包含了大量的预训练视觉模型，包括Resnet，ViT，SwinT等。
+本文所有代码均使用python实现，涉及到模型流水线的代码使用Pytorchhttps://arxiv.org/abs/1912.01703框架，涉及到模型具体结构的代码使用Huggingfacehttps://arxiv.org/abs/1910.03771和Timmhttps://github.com/rwightman/pytorch-image-models开源仓库。其中Huggingface仓库包含了大量的预训练语言模型，包括BERT，Roberta，Debertahttps://arxiv.org/abs/2006.03654等，Timm包含了大量的预训练视觉模型，包括Resnet，ViT，SwinT等。
 
-这里选择使用Huggingface提供的AdamW作为优化器，所有实验都在亚马逊云服务提供的Tesla T4 GPU上运行，每个实验平均耗时200分钟。具体的开源代码可见https://github.com/zhangjiahui-buaa/Thesis。
+这里选择使用Huggingface提供的AdamWhttps://arxiv.org/abs/1412.6980作为优化器，所有实验都在亚马逊云服务提供的Tesla T4 GPU上运行，每个实验平均耗时200分钟。具体的开源代码可见https://github.com/zhangjiahui-buaa/Thesis。
 
 更具体的超参数列在附录中。
 
@@ -516,7 +516,7 @@ $$
 
   该表是在Hateful-Meme数据集上进行多模态情感分类得到的结果。Resnet+ViT+Swint代表用这三种模型预测的结果投票，遵循少数服从多数的原则，另外两个类似。可以看出Resnet+ViT+Swint比单独使用ViT的效果要高，但是Vit+Swint+TNT和Resnet+Vit+Swint+Tnt+Pit却要比ViT更低。一方面说明模型集成这种方法会带来准确率的提升，另一方面说明不恰当的集成方式也有可能会造成准确率的下降。
 
-- Faster R-CNN feature exractor
+- Faster R-CNN feature exractorhttps://arxiv.org/abs/1506.01497
 
   在MMBT模型中，本文采用的图像编码器均为卷积神经网络或者视觉Transformer。另外一种常用的特征提取器是Faster R-CNN。该模型主要用于目标检测当中（具体介绍一下），其提取出的特征这里称为Region-Feature，而前文提取的特征统一称为Grid-Feature。
 
@@ -559,7 +559,7 @@ $$
 
 ## 模型部署展示（26～30）
 
-模型部署主要采用Streamlit框架。Streamlit是一个开放源代码的Python库，可轻松创建和共享用于机器学习和数据科学的漂亮的自定义Web应用程序。这里的模型采用的是不同模态的输入分开编码，且图像编码器为ViT。
+模型部署主要采用Streamlithttps://streamlit.io框架。Streamlit是一个开放源代码的Python库，可轻松创建和共享用于机器学习和数据科学的漂亮的自定义Web应用程序。这里的模型采用的是不同模态的输入分开编码，且图像编码器为ViT。
 
 首先将其在Hateful Meme数据集上训练并保存模型参数。利用Streamlit定义的API，可以方便的上传图像和输入文本。服务器端接收输入后，会自动输入给模型并给出预测结果返回给用户。下图是在本机8501端口的示例Web app
 
