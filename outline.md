@@ -50,6 +50,8 @@ The main work of this paper is as follows
 
    Deploy and visualize the above models.
 
+Keyword: Multimodal Sentiment Analysis， Vision Transformer，Multimodal Feature Fusion
+
 ## 绪论（1～5）
 
 ### 研究背景及研究意义
